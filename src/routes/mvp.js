@@ -93,11 +93,21 @@ router.get('/users/:userId/reviews', async (req, res, next) => {
     return res.status(200).send(user);
 });
 
-// router.post('/users/:userId/reviews/:reviewId/:upOrDownVote', async (req, res, next) => {
-//     User.findByIdAndUpdate(req.params.userId, )
+router.post('/users/:userId/reviews/:reviewId/:upOrDownVote', async (req, res, next) => {
+    const voteSelector = (req.params.upOrDownVote === 'upVote')? 'reviews.$[elem].helpfulUpVote' : 'reviews.$[elem].helpfulDownVote'
+    User.findByIdAndUpdate(req.params.userId, 
+        {$inc : {[voteSelector]: 1}}, 
+        {
+            arrayFilters: [{
+                'elem._id': req.params.reviewId
+            }], 
+            new: true
+        }, (err, user) => {
+            console.log(user);
+        })
 
-//     res.statusMessage = "Success";
-//     return res.status(201).send();
-// });
+    res.statusMessage = "Success";
+    return res.status(201).send();
+});
 
 module.exports = router;
