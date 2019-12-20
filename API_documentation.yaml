@@ -136,7 +136,7 @@ paths:
         '500':
           description: There was an error getting the users matching the query.
           
-  /user/{userId}/reviews:
+  /users/{userId}/reviews:
     post:
       summary: Create a new review for a user.
       tags: 
@@ -238,7 +238,7 @@ paths:
         '500':
           description: There was an error getting the user's reviews.
           
-  /user/{userId}/reviews/{reviewId}/{upOrDownVote}:
+  /users/{userId}/reviews/{reviewId}/{upOrDownVote}:
     post:
       summary: Add helpfulness vote to review.
       tags: 
