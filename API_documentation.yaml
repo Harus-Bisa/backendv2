@@ -45,14 +45,26 @@ components:
         helpfulDownVote:
           type: integer
           example: 2
-
+    
+    UserMatch:
+      properties:
+        userId:
+          type: string
+          example: '5db492c349a67b33b8d0a2a2'
+        name:
+          type: string
+          example: 'Timothy Bryan'
+        school:
+          type: string
+          example: 'Universitas Prasetya Mulya'
+          
 
 paths:
   /reviews:
     post:
-      summary: Create a new review
+      summary: Create a new review for new user.
       tags: 
-      - Review
+      - General
       requestBody:
         required: true
         content:
@@ -94,24 +106,100 @@ paths:
               review:
                 type: string
                 example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
-              
       responses:
         '201':
-          description: Create review is successful.
+          description: Create review for new user is successful.
         '500':
-          description: There was an error creating the review.
+          description: There was an error creating a review for new user.
+          
+  /users:
     get:
-      summary: Get list of a professor's review.
+      summary: Get list of a users matching the query.
       tags:
-        - Review
+        - General
       parameters: 
         - in: query
-          required: true
-          name: professorName
-          description: Name of the professor.
+          name: name
+          description: Name of the user.
           schema:
             type: string
             example: 'Timothy Bryan'
+      responses:
+        '200':
+          description: Get list of users matching the query is successful.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserMatch'
+        '500':
+          description: There was an error getting the users matching the query.
+          
+  /user/{userId}/reviews:
+    post:
+      summary: Create a new review for a user.
+      tags: 
+      - Specific User
+      parameters: 
+        - in: path
+          required: true
+          name: userId
+          description: Id of the user being reviewed.
+          schema:
+            type: string
+            example: '5db492c349a67b33b8d0a2a2'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             type: object
+             required:
+              - courseName
+              - overallRating
+              - recommendationRating
+              - difficultyRating
+              - grade
+              - yearTaken
+              - review
+             properties:
+              courseName:
+                type: string
+                example: 'Brand Management 101'
+              overallRating:
+                type: number
+                example: 4.5
+              recommendationRating:
+                type: number
+                example: 2.5
+              difficultyRating:
+                type: number
+                example: 3.5
+              yearTaken:
+                type: integer
+                example: 2015
+              review:
+                type: string
+                example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
+      responses:
+        '201':
+          description: Create review for a user is successful.
+        '500':
+          description: There was an error creating the review.
+          
+    get:
+      summary: Get list of a user's reviews.
+      tags:
+        - Specific User
+      parameters: 
+        - in: path
+          required: true
+          name: userId
+          description: Id of the user being reviewed.
+          schema:
+            type: string
+            example: '5db492c349a67b33b8d0a2a2'
       responses:
         '200':
           description: Get list of reviews is successful.
@@ -135,7 +223,7 @@ paths:
                   recommendationRating:
                     type: number
                     example: 5.0
-                  diffultyRating:
+                  difficultyRating:
                     type: number
                     example: 4.5
                   numberOfReviews:
@@ -145,18 +233,24 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/Review'
-                
         '404':
-          description: Professor not found.
+          description: User not found.
         '500':
-          description: There was an error getting the professor's review.
-    
-  /reviews/{reviewId}/{upOrDownVote}:
+          description: There was an error getting the user's reviews.
+          
+  /user/{userId}/reviews/{reviewId}/{upOrDownVote}:
     post:
       summary: Add helpfulness vote to review.
       tags: 
-      - Review
+      - Specific User
       parameters: 
+        - in: path
+          required: true
+          name: userId
+          description: Id of the user being reviewed.
+          schema:
+            type: string
+            example: '5db492c349a67b33b8d0a2a2'
         - in: path
           required: true
           name: reviewId
@@ -171,7 +265,6 @@ paths:
           schema:
             type: string
             enum: ['upVote', 'downVote']
-              
       responses:
         '201':
           description: Add helpfulness vote to review is successful.
