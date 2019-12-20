@@ -1,0 +1,181 @@
+openapi: "3.0.0"
+info:
+  title: Review Guru API
+  description: Back end API for Review Guru
+  version: 0.0.1
+
+servers:
+  - url: http://localhost:8000
+    description: Development server
+  
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Review:
+      properties:
+        reviewId:
+          type: string
+          example: '5db492c349a67b33b8d0a2a2'
+        review:
+          type: string
+          example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
+        courseName:
+          type: string
+          example: 'Brand Management 101'
+        overallRating:
+          type: number
+          example: 4.5
+        recommendationRating:
+          type: number
+          example: 2.5
+        difficultyRating:
+          type: number
+          example: 3.5
+        yearTaken:
+          type: integer
+          example: 2015
+        helpfulUpVote:
+          type: integer
+          example: 25
+        helpfulDownVote:
+          type: integer
+          example: 2
+
+
+paths:
+  /reviews:
+    post:
+      summary: Create a new review
+      tags: 
+      - Review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             type: object
+             required:
+              - name
+              - school
+              - courseName
+              - overallRating
+              - recommendationRating
+              - difficultyRating
+              - grade
+              - yearTaken
+              - review
+             properties:
+              name:
+                type: string
+                example: 'Wilson Burnawan'
+              school:
+                type: string
+                example: 'Universitas Prasetya Mulya'
+              courseName:
+                type: string
+                example: 'Brand Management 101'
+              overallRating:
+                type: number
+                example: 4.5
+              recommendationRating:
+                type: number
+                example: 2.5
+              difficultyRating:
+                type: number
+                example: 3.5
+              yearTaken:
+                type: integer
+                example: 2015
+              review:
+                type: string
+                example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
+              
+      responses:
+        '201':
+          description: Create review is successful.
+        '500':
+          description: There was an error creating the review.
+    get:
+      summary: Get list of a professor's review.
+      tags:
+        - Review
+      parameters: 
+        - in: query
+          required: true
+          name: professorName
+          description: Name of the professor.
+          schema:
+            type: string
+            example: 'Timothy Bryan'
+      responses:
+        '200':
+          description: Get list of reviews is successful.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                    example: '5db492c349a67b33b8d0a2a2'
+                  name:
+                    type: string
+                    example: 'Timothy Bryan'
+                  school:
+                    type: string
+                    example: 'Universitas Prasetya Mulya'
+                  overallRating:
+                    type: number
+                    example: 4.5
+                  recommendationRating:
+                    type: number
+                    example: 5.0
+                  diffultyRating:
+                    type: number
+                    example: 4.5
+                  numberOfReviews:
+                    type: integer
+                    example: 12
+                  reviews:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Review'
+                
+        '404':
+          description: Professor not found.
+        '500':
+          description: There was an error getting the professor's review.
+    
+  /reviews/{reviewId}/{upOrDownVote}:
+    post:
+      summary: Add helpfulness vote to review.
+      tags: 
+      - Review
+      parameters: 
+        - in: path
+          required: true
+          name: reviewId
+          description: Id of the review.
+          schema:
+            type: string
+            example: '5db492c349a67b33b8d0a2a2'
+        - in: path
+          required: true
+          name: upOrDownVote
+          description: Option to add up or down vote.
+          schema:
+            type: string
+            enum: ['upVote', 'downVote']
+              
+      responses:
+        '201':
+          description: Add helpfulness vote to review is successful.
+        '404':
+          description: Review not found.
+        '500':
+          description: There was an error adding helpfullness vote to the review.
