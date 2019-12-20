@@ -48,7 +48,7 @@ router.post('/users/:userId/reviews', async (req, res, next) => {
     return res.status(201).send();
 });
 
-router.get('/reviews', async (req, res, next) => {
+router.get('/users', async (req, res, next) => {
     let searchQuery = req.query.name ? '(?i)'+req.query.name+'.*' : '.*';
     let users = await User.find({name: {$regex: searchQuery}});
     users = users.map(user => {
@@ -89,10 +89,15 @@ router.get('/users/:userId/reviews', async (req, res, next) => {
     delete user.__v;
     delete user._id;
 
-    // console.log(user);
-
     res.statusMessage = "Success";
     return res.status(200).send(user);
 });
+
+// router.post('/users/:userId/reviews/:reviewId/:upOrDownVote', async (req, res, next) => {
+//     User.findByIdAndUpdate(req.params.userId, )
+
+//     res.statusMessage = "Success";
+//     return res.status(201).send();
+// });
 
 module.exports = router;
