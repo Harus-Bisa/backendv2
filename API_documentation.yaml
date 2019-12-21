@@ -16,14 +16,20 @@ components:
       bearerFormat: JWT
 
   schemas:
+    LoginResponse:
+      properties:
+        token:
+          type: string
+          example: '300b524e1b87374b56af68cd6b54aef7a65fda38'
+        userId:
+          type: string
+          example: '5db6093a7f75df3ce6c12095'
+          
     Review:
       properties:
         reviewId:
           type: string
           example: '5db492c349a67b33b8d0a2a2'
-        review:
-          type: string
-          example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
         courseName:
           type: string
           example: 'Brand Management 101'
@@ -36,16 +42,49 @@ components:
         difficultyRating:
           type: number
           example: 3.5
+        textbookRequired:
+          type: boolean
+          example: true
         yearTaken:
           type: integer
           example: 2015
+        review:
+          type: string
+          example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
         helpfulUpVote:
           type: integer
           example: 25
         helpfulDownVote:
           type: integer
           example: 2
-    
+        tags:
+          type: array
+          items:
+            type: string
+          example: ['caring', 'young', 'easy class']
+      
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserMatch'
+        - type: object
+          properties:
+            overallRating:
+              type: number
+              example: 4.5
+            recommendationRating:
+              type: number
+              example: 5
+            difficultyRating:
+              type: number
+              example: 4.5
+            numberOfReviews:
+              type: string
+              example: 12
+            reviews:
+              type: array
+              items:
+                $ref: '#/components/schemas/Review'
+
     UserMatch:
       properties:
         userId:
@@ -57,14 +96,81 @@ components:
         school:
           type: string
           example: 'Universitas Prasetya Mulya'
-          
 
 paths:
+  /signup:
+    post:
+      summary: Create a new user
+      tags: 
+      - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             type: object
+             required:
+              - name
+              - email
+              - password
+             properties:
+              name:
+                type: string
+                example: 'Wilson Burnawan'
+              email:
+                type: string
+                format: email
+                example: 'wilson.burnawan@uiuc.edu'
+              password:
+                type: string
+                example: '123abc'
+      responses:
+        '201':
+          description: Create user is successful
+        '500':
+          description: There was an error creating the user
+  
+  /login:
+    post:
+      summary: Login to get authorization token
+      tags:
+      - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: 
+              - email
+              - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'wilson.burnawan@uiuc.edu'
+                password:
+                  type: string
+                  example: '123abc'
+      responses:
+        '200':
+          description: Login is successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Please provide correct email and password
+        '500':
+          description: There was an error logging in
+  
   /reviews:
     post:
       summary: Create a new review for new user.
       tags: 
       - General
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -81,6 +187,8 @@ paths:
               - grade
               - yearTaken
               - review
+              - tags
+              - textbookRequired
              properties:
               name:
                 type: string
@@ -100,15 +208,27 @@ paths:
               difficultyRating:
                 type: number
                 example: 3.5
+              textbookRequired:
+                type: boolean
+                example: true
               yearTaken:
                 type: integer
                 example: 2015
               review:
                 type: string
                 example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
+              tags:
+                type: array
+                items:
+                  type: string
+                example: ['caring', 'young', 'easy class']       
       responses:
         '201':
           description: Create review for new user is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '500':
           description: There was an error creating a review for new user.
           
@@ -141,6 +261,8 @@ paths:
       summary: Create a new review for a user.
       tags: 
       - Specific User
+      security:
+        - bearerAuth: []
       parameters: 
         - in: path
           required: true
@@ -163,6 +285,8 @@ paths:
               - grade
               - yearTaken
               - review
+              - tags
+              - textbookRequired
              properties:
               courseName:
                 type: string
@@ -176,18 +300,30 @@ paths:
               difficultyRating:
                 type: number
                 example: 3.5
+              textbookRequired:
+                type: boolean
+                example: true
               yearTaken:
                 type: integer
                 example: 2015
               review:
                 type: string
                 example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
+              tags:
+                type: array
+                items:
+                  type: string
+                example: ['caring', 'young', 'easy class']
       responses:
         '201':
           description: Create review for a user is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
         '500':
           description: There was an error creating the review.
-          
+
     get:
       summary: Get list of a user's reviews.
       tags:
@@ -206,33 +342,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  userId:
-                    type: string
-                    example: '5db492c349a67b33b8d0a2a2'
-                  name:
-                    type: string
-                    example: 'Timothy Bryan'
-                  school:
-                    type: string
-                    example: 'Universitas Prasetya Mulya'
-                  overallRating:
-                    type: number
-                    example: 4.5
-                  recommendationRating:
-                    type: number
-                    example: 5.0
-                  difficultyRating:
-                    type: number
-                    example: 4.5
-                  numberOfReviews:
-                    type: integer
-                    example: 12
-                  reviews:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Review'
+                $ref: '#/components/schemas/User'
         '404':
           description: User not found.
         '500':
@@ -243,6 +353,8 @@ paths:
       summary: Add helpfulness vote to review.
       tags: 
       - Specific User
+      security:
+        - bearerAuth: []
       parameters: 
         - in: path
           required: true
@@ -268,6 +380,10 @@ paths:
       responses:
         '201':
           description: Add helpfulness vote to review is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Review'
         '404':
           description: Review not found.
         '500':
