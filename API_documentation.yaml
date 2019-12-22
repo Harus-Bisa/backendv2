@@ -63,9 +63,9 @@ components:
             type: string
           example: ['caring', 'young', 'easy class']
       
-    User:
+    Reviewee:
       allOf:
-        - $ref: '#/components/schemas/UserMatch'
+        - $ref: '#/components/schemas/RevieweeMatch'
         - type: object
           properties:
             overallRating:
@@ -85,9 +85,9 @@ components:
               items:
                 $ref: '#/components/schemas/Review'
 
-    UserMatch:
+    RevieweeMatch:
       properties:
-        userId:
+        revieweeId:
           type: string
           example: '5db492c349a67b33b8d0a2a2'
         name:
@@ -166,7 +166,7 @@ paths:
   
   /reviews:
     post:
-      summary: Create a new review for new user.
+      summary: Create a new review for new reviewee.
       tags: 
       - General
       security:
@@ -224,50 +224,50 @@ paths:
                 example: ['caring', 'young', 'easy class']       
       responses:
         '201':
-          description: Create review for new user is successful.
+          description: Create review for new review is successful.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Reviewee'
         '500':
-          description: There was an error creating a review for new user.
+          description: There was an error creating a review for new reviewee.
           
-  /users:
+  /reviewees:
     get:
-      summary: Get list of a users matching the query.
+      summary: Get list of a reviewees matching the query.
       tags:
         - General
       parameters: 
         - in: query
           name: name
-          description: Name of the user.
+          description: Name of the reviewee.
           schema:
             type: string
             example: 'Timothy Bryan'
       responses:
         '200':
-          description: Get list of users matching the query is successful.
+          description: Get list of reviewees matching the query is successful.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UserMatch'
+                  $ref: '#/components/schemas/RevieweeMatch'
         '500':
-          description: There was an error getting the users matching the query.
+          description: There was an error getting the reviewees matching the query.
           
-  /users/{userId}/reviews:
+  /reviewees/{revieweeId}/reviews:
     post:
-      summary: Create a new review for a user.
+      summary: Create a new review for a reviewee.
       tags: 
-      - Specific User
+      - Specific Reviewee
       security:
         - bearerAuth: []
       parameters: 
         - in: path
           required: true
-          name: userId
-          description: Id of the user being reviewed.
+          name: revieweeId
+          description: Id of the reviewee.
           schema:
             type: string
             example: '5db492c349a67b33b8d0a2a2'
@@ -316,7 +316,7 @@ paths:
                 example: ['caring', 'young', 'easy class']
       responses:
         '201':
-          description: Create review for a user is successful.
+          description: Create review for a reviewee is successful.
           content:
             application/json:
               schema:
@@ -325,14 +325,14 @@ paths:
           description: There was an error creating the review.
 
     get:
-      summary: Get list of a user's reviews.
+      summary: Get list of a reviewee's reviews.
       tags:
-        - Specific User
+        - Specific Reviewee
       parameters: 
         - in: path
           required: true
-          name: userId
-          description: Id of the user being reviewed.
+          name: revieweeId
+          description: Id of reviewee.
           schema:
             type: string
             example: '5db492c349a67b33b8d0a2a2'
@@ -342,24 +342,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/Reviewee'
         '404':
-          description: User not found.
+          description: Reviewee not found.
         '500':
-          description: There was an error getting the user's reviews.
+          description: There was an error getting the reviewee's reviews.
           
-  /users/{userId}/reviews/{reviewId}/{upOrDownVote}:
+  /reviewees/{revieweeId}/reviews/{reviewId}/{upOrDownVote}:
     post:
       summary: Add helpfulness vote to review.
       tags: 
-      - Specific User
+      - Specific Reviewee
       security:
         - bearerAuth: []
       parameters: 
         - in: path
           required: true
-          name: userId
-          description: Id of the user being reviewed.
+          name: revieweeId
+          description: Id of the reviewee being reviewed.
           schema:
             type: string
             example: '5db492c349a67b33b8d0a2a2'
