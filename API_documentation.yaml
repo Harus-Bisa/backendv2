@@ -100,7 +100,7 @@ components:
 paths:
   /signup:
     post:
-      summary: Create a new user
+      summary: Create a new user.
       tags: 
       - Authentication
       requestBody:
@@ -126,13 +126,13 @@ paths:
                 example: '123abc'
       responses:
         '201':
-          description: Create user is successful
+          description: Create user is successful.
         '500':
-          description: There was an error creating the user
+          description: There was an error creating the user.
   
   /login:
     post:
-      summary: Login to get authorization token
+      summary: Login to get authorization token.
       tags:
       - Authentication
       requestBody:
@@ -160,11 +160,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
         '401':
-          description: Please provide correct email and password
+          description: Please provide correct email and password.
         '500':
-          description: There was an error logging in
+          description: There was an error logging in.
   
-  /reviews:
+  /reviewees:
     post:
       summary: Create a new review for new reviewee.
       tags: 
@@ -231,8 +231,7 @@ paths:
                 $ref: '#/components/schemas/Reviewee'
         '500':
           description: There was an error creating a review for new reviewee.
-          
-  /reviewees:
+    
     get:
       summary: Get list of a reviewees matching the query.
       tags:
