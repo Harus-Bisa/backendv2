@@ -224,7 +224,7 @@ paths:
                 example: ['caring', 'young', 'easy class']       
       responses:
         '201':
-          description: Create review for new review is successful.
+          description: Create review for new reviewee is successful.
           content:
             application/json:
               schema:
