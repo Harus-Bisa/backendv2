@@ -1,4 +1,4 @@
-const Reviewee = require("../models/Reviewee");
+const Reviewee = require('../models/Reviewee');
 
 function RevieweeService() {
   return Object.freeze({
@@ -6,7 +6,7 @@ function RevieweeService() {
     getRevieweesByName,
     createReview,
     getReviewee,
-    addHelpfullnessVote
+    addHelpfullnessVote,
   });
 
   async function createRevieweeWithReview(revieweeData) {
@@ -25,9 +25,9 @@ function RevieweeService() {
           textbookRequired: revieweeData.textbookRequired,
           teachingStyles: revieweeData.teachingStyles,
           helpfulUpVote: 0,
-          helpfulDownVote: 0
-        }
-      ]
+          helpfulDownVote: 0,
+        },
+      ],
     };
 
     const newReviewee = await Reviewee.create(formatedData);
@@ -36,13 +36,13 @@ function RevieweeService() {
   }
 
   async function getRevieweesByName(name) {
-    const searchQuery = name ? `(?i)(^| )${name}.*` : ".*";
+    const searchQuery = name ? `(?i)(^| )${name}.*` : '.*';
     let reviewees = await Reviewee.find({ name: { $regex: searchQuery } });
-    reviewees = reviewees.map(reviewee => {
+    reviewees = reviewees.map((reviewee) => {
       return {
         revieweeId: reviewee._id,
         name: reviewee.name,
-        school: reviewee.school
+        school: reviewee.school,
       };
     });
 
@@ -53,7 +53,7 @@ function RevieweeService() {
     let newReview = {
       ...reviewData,
       helpfulDownVote: 0,
-      helpfulUpVote: 0
+      helpfulUpVote: 0,
     };
 
     const reviewee = await Reviewee.findByIdAndUpdate(
@@ -81,21 +81,21 @@ function RevieweeService() {
 
   async function addHelpfullnessVote(revieweeId, reviewId, vote) {
     const voteSelector =
-      vote === "upVote"
-        ? "reviews.$[elem].helpfulUpVote"
-        : "reviews.$[elem].helpfulDownVote";
+      vote === 'upVote'
+        ? 'reviews.$[elem].helpfulUpVote'
+        : 'reviews.$[elem].helpfulDownVote';
     const reviewee = await Reviewee.findByIdAndUpdate(
       revieweeId,
       { $inc: { [voteSelector]: 1 } },
       {
-        arrayFilters: [{ "elem._id": reviewId }],
-        new: true
+        arrayFilters: [{ 'elem._id': reviewId }],
+        new: true,
       }
     );
 
     let votedReview = null;
     if (reviewee) {
-      votedReview = reviewee.reviews.find(review => review._id == reviewId);
+      votedReview = reviewee.reviews.find((review) => review._id == reviewId);
       votedReview = formatReviewObject(votedReview);
     }
     return { votedReview };

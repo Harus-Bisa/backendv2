@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 
 const reviewSchema = new mongoose.Schema({
   review: String,
@@ -11,13 +11,13 @@ const reviewSchema = new mongoose.Schema({
   helpfulUpVote: Number,
   helpfulDownVote: Number,
   tags: [String],
-  teachingStyles: [String]
+  teachingStyles: [String],
 });
 
 const revieweeSchema = new mongoose.Schema({
   name: String,
   school: String,
-  reviews: [reviewSchema]
+  reviews: [reviewSchema],
 });
 
-module.exports = mongoose.model("Reviewee", revieweeSchema);
+module.exports = mongoose.model('Reviewee', revieweeSchema);
