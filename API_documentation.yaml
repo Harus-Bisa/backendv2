@@ -48,6 +48,9 @@ components:
         yearTaken:
           type: integer
           example: 2015
+        grade:
+          type: string
+          example: 'A-'
         review:
           type: string
           example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
@@ -219,6 +222,9 @@ paths:
               yearTaken:
                 type: integer
                 example: 2015
+              grade:
+                type: string
+                example: 'A-'
               review:
                 type: string
                 example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'
@@ -318,6 +324,7 @@ paths:
               - difficultyRating
               - grade
               - yearTaken
+              - grade
               - review
               - textbookRequired
              properties:
@@ -339,6 +346,9 @@ paths:
               yearTaken:
                 type: integer
                 example: 2015
+              grade:
+                type: string
+                example: 'A-'
               review:
                 type: string
                 example: 'This class is so easy and the professor teaching style makes me understand the course material easily.'

@@ -21,6 +21,7 @@ function RevieweeService() {
           recommendationRating: revieweeData.recommendationRating,
           difficultyRating: revieweeData.difficultyRating,
           yearTaken: revieweeData.yearTaken,
+          grade: revieweeData.grade,
           tags: revieweeData.tags,
           textbookRequired: revieweeData.textbookRequired,
           teachingStyles: revieweeData.teachingStyles,

@@ -7,6 +7,7 @@ const reviewSchema = new mongoose.Schema({
   recommendationRating: Number,
   difficultyRating: Number,
   yearTaken: Number,
+  grade: String,
   textbookRequired: Boolean,
   helpfulUpVote: Number,
   helpfulDownVote: Number,
