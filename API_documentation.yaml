@@ -62,6 +62,11 @@ components:
           items:
             type: string
           example: ['caring', 'young', 'easy class']
+        teachingStyles:
+          type: array
+          items:
+            type: string
+          example: ['visual', 'professional']
       
     Reviewee:
       allOf:
@@ -187,8 +192,8 @@ paths:
               - grade
               - yearTaken
               - review
-              - tags
               - textbookRequired
+
              properties:
               name:
                 type: string
@@ -221,7 +226,12 @@ paths:
                 type: array
                 items:
                   type: string
-                example: ['caring', 'young', 'easy class']       
+                example: ['caring', 'young', 'easy class']
+              teachingStyles:
+                type: array
+                items:
+                  type: string
+                example: ['visual', 'professional']       
       responses:
         '201':
           description: Create review for new reviewee is successful.
@@ -284,7 +294,6 @@ paths:
               - grade
               - yearTaken
               - review
-              - tags
               - textbookRequired
              properties:
               courseName:
@@ -313,6 +322,11 @@ paths:
                 items:
                   type: string
                 example: ['caring', 'young', 'easy class']
+              teachingStyles:
+                type: array
+                items:
+                  type: string
+                example: ['visual', 'professional']
       responses:
         '201':
           description: Create review for a reviewee is successful.
