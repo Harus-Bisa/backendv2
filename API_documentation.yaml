@@ -264,7 +264,32 @@ paths:
                   $ref: '#/components/schemas/RevieweeMatch'
         '500':
           description: There was an error getting the reviewees matching the query.
-          
+   
+  /reviewees/{revieweeId}:
+    get:
+      summary: Get a specific reviewee.
+      tags:
+        - Specific Reviewee
+      parameters: 
+        - in: path
+          required: true
+          name: revieweeId
+          description: Id of reviewee.
+          schema:
+            type: string
+            example: '5db492c349a67b33b8d0a2a2'
+      responses:
+        '200':
+          description: Get reviewee is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reviewee'
+        '404':
+          description: Reviewee not found.
+        '500':
+          description: There was an error getting the reviewee's reviews.
+
   /reviewees/{revieweeId}/reviews:
     post:
       summary: Create a new review for a reviewee.
@@ -338,30 +363,6 @@ paths:
           description: Reviewee not found.
         '500':
           description: There was an error creating the review.
-
-    get:
-      summary: Get list of a reviewee's reviews.
-      tags:
-        - Specific Reviewee
-      parameters: 
-        - in: path
-          required: true
-          name: revieweeId
-          description: Id of reviewee.
-          schema:
-            type: string
-            example: '5db492c349a67b33b8d0a2a2'
-      responses:
-        '200':
-          description: Get list of reviews is successful.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Reviewee'
-        '404':
-          description: Reviewee not found.
-        '500':
-          description: There was an error getting the reviewee's reviews.
           
   /reviewees/{revieweeId}/reviews/{reviewId}/{upOrDownVote}:
     post:
