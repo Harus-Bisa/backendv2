@@ -12,7 +12,7 @@ function verifyToken(req, res, next) {
 		try {
 			const decodedPayload = jwt.verify(token, config.jwtSecret);
 			req.userId = decodedPayload.userId;
-      req.authenticated = true;
+			req.authenticated = true;
 		} catch {
 			// pass to next handler
 			// user can still do limited actions if not authenticated

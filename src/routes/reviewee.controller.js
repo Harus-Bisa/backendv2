@@ -86,30 +86,34 @@ router.post('/:revieweeId/reviews', authentication, async (req, res) => {
 	}
 });
 
-router.post('/:revieweeId/reviews/:reviewId/:vote', authentication, async (req, res) => {
-	if (!req.authenticated) {
-		res.statusMessage = 'Authentication is required to add vote.';
-		return res.status(401).end();
-	}
-	try {
-		const { votedReview } = await revieweeService.addHelpfullnessVote(
-			req.params.revieweeId,
-			req.params.reviewId,
-			req.params.vote
-		);
-		if (votedReview) {
-			res.statusMessage = 'Add helpfulness vote to review is successful.';
-			return res.status(201).send(votedReview);
-		} else {
-			res.statusMessage = 'Review not found.';
-			return res.status(404).end();
+router.post(
+	'/:revieweeId/reviews/:reviewId/:vote',
+	authentication,
+	async (req, res) => {
+		if (!req.authenticated) {
+			res.statusMessage = 'Authentication is required to add vote.';
+			return res.status(401).end();
 		}
-	} catch (err) {
-		console.log(err);
-		res.statusMessage =
-			'There was an error adding helpfullness vote to the review.';
-		return res.status(500).end();
+		try {
+			const { votedReview } = await revieweeService.addHelpfullnessVote(
+				req.params.revieweeId,
+				req.params.reviewId,
+				req.params.vote
+			);
+			if (votedReview) {
+				res.statusMessage = 'Add helpfulness vote to review is successful.';
+				return res.status(201).send(votedReview);
+			} else {
+				res.statusMessage = 'Review not found.';
+				return res.status(404).end();
+			}
+		} catch (err) {
+			console.log(err);
+			res.statusMessage =
+				'There was an error adding helpfullness vote to the review.';
+			return res.status(500).end();
+		}
 	}
-});
+);
 
 module.exports = router;
