@@ -245,6 +245,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Reviewee'
+        '401':
+          description: Authentication is required to create new review.
         '500':
           description: There was an error creating a review for new reviewee.
     
@@ -324,7 +326,6 @@ paths:
               - difficultyRating
               - grade
               - yearTaken
-              - grade
               - review
               - textbookRequired
              properties:
@@ -369,6 +370,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
+        '401':
+          description: Authentication is required to create new review.
         '404':
           description: Reviewee not found.
         '500':
@@ -410,6 +413,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Review'
+        '401':
+          description: Authentication is required to add new vote.
         '404':
           description: Review not found.
         '500':

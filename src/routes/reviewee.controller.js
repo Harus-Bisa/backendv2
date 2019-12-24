@@ -1,11 +1,17 @@
 const express = require('express');
 
 const RevieweeService = require('../services/reviewee.service');
+const authentication = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 const revieweeService = RevieweeService();
 
-router.post('/', async (req, res) => {
+router.post('/', authentication, async (req, res) => {
+	if (!req.authenticated) {
+		res.statusMessage = 'Authentication is required to create new review.';
+		return res.status(401).end();
+	}
+
 	try {
 		const { newReviewee } = await revieweeService.createRevieweeWithReview(
 			req.body
@@ -36,9 +42,10 @@ router.get('/', async (req, res) => {
 	}
 });
 
-router.get('/:revieweeId', async (req, res) => {
+router.get('/:revieweeId', authentication, async (req, res) => {
 	try {
 		const { reviewee } = await revieweeService.getReviewee(
+			req.authenticated,
 			req.params.revieweeId
 		);
 		if (reviewee) {
@@ -55,7 +62,11 @@ router.get('/:revieweeId', async (req, res) => {
 	}
 });
 
-router.post('/:revieweeId/reviews', async (req, res) => {
+router.post('/:revieweeId/reviews', authentication, async (req, res) => {
+	if (!req.authenticated) {
+		res.statusMessage = 'Authentication is required to create new review.';
+		return res.status(401).end();
+	}
 	try {
 		const { revieweeId, newReview } = await revieweeService.createReview(
 			req.params.revieweeId,
@@ -75,7 +86,11 @@ router.post('/:revieweeId/reviews', async (req, res) => {
 	}
 });
 
-router.post('/:revieweeId/reviews/:reviewId/:vote', async (req, res) => {
+router.post('/:revieweeId/reviews/:reviewId/:vote', authentication, async (req, res) => {
+	if (!req.authenticated) {
+		res.statusMessage = 'Authentication is required to add vote.';
+		return res.status(401).end();
+	}
 	try {
 		const { votedReview } = await revieweeService.addHelpfullnessVote(
 			req.params.revieweeId,

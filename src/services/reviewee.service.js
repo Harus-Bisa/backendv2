@@ -75,8 +75,15 @@ function RevieweeService() {
 		return { revieweeId: foundRevieweeId, newReview };
 	}
 
-	async function getReviewee(revieweeId) {
-		const reviewee = await Reviewee.findById(revieweeId);
+	async function getReviewee(authenticated, revieweeId) {
+		const reviewLimit = 3;
+		let reviewee = await Reviewee.findById(revieweeId);
+
+		if (!authenticated) {
+			// limit returned review
+			reviewee.reviews = limitReviewCount(reviewee.reviews, reviewLimit);
+		}
+
 		return { reviewee: formatRevieweeObject(reviewee) };
 	}
 
@@ -128,12 +135,22 @@ function RevieweeService() {
 		formattedReviewee = formattedReviewee.toObject();
 		formattedReviewee.revieweeId = formattedReviewee._id;
 		formattedReviewee.numberOfReviews = formattedReviewee.reviews.length;
-		formattedReviewee.overallRating =
-			sumOverallRating / formattedReviewee.reviews.length;
-		formattedReviewee.recommendationRating =
-			sumRecommendationRating / formattedReviewee.reviews.length;
-		formattedReviewee.difficultyRating =
-			sumDifficultyRating / formattedReviewee.reviews.length;
+		if (revieweeObject.reviews.length > 0) {
+			formattedReviewee.overallRating = (
+				sumOverallRating / formattedReviewee.reviews.length
+			).toFixed(2);
+			formattedReviewee.recommendationRating = (
+				sumRecommendationRating / formattedReviewee.reviews.length
+			).toFixed(2);
+			formattedReviewee.difficultyRating = (
+				sumDifficultyRating / formattedReviewee.reviews.length
+			).toFixed(2);
+		} else {
+			formattedReviewee.overallRating = '-';
+			formattedReviewee.recommendationRating = '-';
+			formattedReviewee.difficultyRating = '-';
+		}
+
 		delete formattedReviewee.__v;
 		delete formattedReviewee._id;
 
@@ -149,6 +166,15 @@ function RevieweeService() {
 		delete formattedReview._id;
 
 		return formattedReview;
+	}
+
+	function limitReviewCount(reviews, countLimit) {
+		let limitedReviews = [];
+		countLimit = reviews.length < countLimit ? reviews.length : countLimit;
+		for (let i = 0; i < countLimit; i += 1) {
+			limitedReviews.push(reviews[i]);
+		}
+		return limitedReviews;
 	}
 }
 
