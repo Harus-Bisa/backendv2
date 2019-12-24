@@ -139,12 +139,18 @@ function RevieweeService() {
 			formattedReviewee.overallRating = (
 				sumOverallRating / formattedReviewee.reviews.length
 			).toFixed(2);
+	
 			formattedReviewee.recommendationRating = (
 				sumRecommendationRating / formattedReviewee.reviews.length
 			).toFixed(2);
+			
 			formattedReviewee.difficultyRating = (
 				sumDifficultyRating / formattedReviewee.reviews.length
 			).toFixed(2);
+
+			formattedReviewee.overallRating = parseFloat(formattedReviewee.overallRating);
+			formattedReviewee.recommendationRating = parseFloat(formattedReviewee.recommendationRating);
+			formattedReviewee.difficultyRating = parseFloat(formattedReviewee.difficultyRating);
 		} else {
 			formattedReviewee.overallRating = '-';
 			formattedReviewee.recommendationRating = '-';
