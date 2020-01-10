@@ -8,6 +8,15 @@ const userSchema = new mongoose.Schema({
 		{
 			revieweeId: mongoose.Schema.Types.ObjectId,
 			reviewId: mongoose.Schema.Types.ObjectId,
+			_id: false,
+		},
+	],
+	helpfulnessVotes: [
+		{
+			revieweeId: mongoose.Schema.Types.ObjectId,
+			reviewId: mongoose.Schema.Types.ObjectId,
+			vote: String,
+			_id: false,
 		},
 	],
 	following: [mongoose.Schema.Types.ObjectId],

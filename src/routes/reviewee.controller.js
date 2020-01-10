@@ -1,10 +1,12 @@
 const express = require('express');
 
 const RevieweeService = require('../services/reviewee.service');
+const UserService = require('../services/user.service');
 const authentication = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 const revieweeService = RevieweeService();
+const userService = UserService();
 
 router.post('/', authentication, async (req, res) => {
 	if (!req.authenticated) {
@@ -15,6 +17,11 @@ router.post('/', authentication, async (req, res) => {
 	try {
 		const { newReviewee } = await revieweeService.createRevieweeWithReview(
 			req.body
+		);
+		const { outgoingReview } = await userService.addOutgoingReview(
+			req.userId,
+			newReviewee.revieweeId,
+			newReviewee.reviews[newReviewee.reviews.length - 1].reviewId
 		);
 		res.statusMessage = 'Create review for new reviewee is successful.';
 		return res.status(201).send(newReviewee);
@@ -44,7 +51,7 @@ router.get('/', async (req, res) => {
 
 router.get('/:revieweeId', authentication, async (req, res) => {
 	try {
-		const { reviewee } = await revieweeService.getReviewee(
+		const { reviewee } = await revieweeService.getRevieweeById(
 			req.authenticated,
 			req.params.revieweeId
 		);
@@ -73,6 +80,11 @@ router.post('/:revieweeId/reviews', authentication, async (req, res) => {
 			req.body
 		);
 		if (revieweeId) {
+			const { outgoingReview } = await userService.addOutgoingReview(
+				req.userId,
+				revieweeId,
+				newReview.reviewId
+			);
 			res.statusMessage = 'Create review for a reviewee is successful.';
 			return res.status(201).send(newReview);
 		} else {
@@ -95,12 +107,31 @@ router.post(
 			return res.status(401).end();
 		}
 		try {
-			const { votedReview } = await revieweeService.addHelpfullnessVote(
+			const { review } = await revieweeService.getReviewById(
 				req.params.revieweeId,
-				req.params.reviewId,
-				req.params.vote
+				req.params.reviewId
 			);
-			if (votedReview) {
+			if (review) {
+				const {
+					cancelVote,
+					switchVote,
+					selectedVote,
+				} = await userService.updateHelpfulnessVote(
+					req.userId,
+					req.params.revieweeId,
+					req.params.reviewId,
+					req.params.vote
+				);
+
+				const { votedReview } = await revieweeService.updateHelpfulnessVote(
+					cancelVote,
+					switchVote,
+					selectedVote.revieweeId,
+					selectedVote.reviewId,
+					selectedVote.vote
+				);
+
+				// check is duplicate TODO
 				res.statusMessage = 'Add helpfulness vote to review is successful.';
 				return res.status(201).send(votedReview);
 			} else {

@@ -5,8 +5,9 @@ function RevieweeService() {
 		createRevieweeWithReview,
 		getRevieweesByName,
 		createReview,
-		getReviewee,
-		addHelpfullnessVote,
+		getRevieweeById,
+		updateHelpfulnessVote,
+		getReviewById,
 	});
 
 	async function createRevieweeWithReview(revieweeData) {
@@ -75,38 +76,91 @@ function RevieweeService() {
 		return { revieweeId: foundRevieweeId, newReview };
 	}
 
-	async function getReviewee(authenticated, revieweeId) {
-		const reviewLimit = 3;
+	async function getRevieweeById(authenticated, revieweeId) {
+		const REVIEW_LIMIT = 3;
 		let reviewee = await Reviewee.findById(revieweeId);
 
 		if (!authenticated) {
 			// limit returned review
-			reviewee.reviews = limitReviewCount(reviewee.reviews, reviewLimit);
+			reviewee.reviews = limitReviewCount(reviewee.reviews, REVIEW_LIMIT);
 		}
 
 		return { reviewee: formatRevieweeObject(reviewee) };
 	}
 
-	async function addHelpfullnessVote(revieweeId, reviewId, vote) {
+	async function updateHelpfulnessVote(
+		cancelVote,
+		switchVote,
+		revieweeId,
+		reviewId,
+		vote
+	) {
+		let reviewee = null;
+
 		const voteSelector =
 			vote === 'upVote'
 				? 'reviews.$[elem].helpfulUpVote'
 				: 'reviews.$[elem].helpfulDownVote';
-		const reviewee = await Reviewee.findByIdAndUpdate(
-			revieweeId,
-			{ $inc: { [voteSelector]: 1 } },
-			{
-				arrayFilters: [{ 'elem._id': reviewId }],
-				new: true,
-			}
-		);
+		const oppositeVoteSelector =
+			vote !== 'upVote'
+				? 'reviews.$[elem].helpfulUpVote'
+				: 'reviews.$[elem].helpfulDownVote';
+
+		if (cancelVote === false && switchVote === false) {
+			// increase vote
+			reviewee = await Reviewee.findByIdAndUpdate(
+				revieweeId,
+				{ $inc: { [voteSelector]: 1 } },
+				{
+					arrayFilters: [{ 'elem._id': reviewId }],
+					new: true,
+				}
+			);
+		} else if (cancelVote === true) {
+			// dec
+			reviewee = await Reviewee.findByIdAndUpdate(
+				revieweeId,
+				{ $inc: { [voteSelector]: -1 } },
+				{
+					arrayFilters: [{ 'elem._id': reviewId }],
+					new: true,
+				}
+			);
+		} else if (switchVote === true) {
+			// auto change / switch
+			reviewee = await Reviewee.findByIdAndUpdate(
+				revieweeId,
+				{ $inc: { [voteSelector]: 1, [oppositeVoteSelector]: -1 } },
+				{
+					arrayFilters: [{ 'elem._id': reviewId }],
+					new: true,
+				}
+			);
+		}
 
 		let votedReview = null;
-		if (reviewee) {
-			votedReview = reviewee.reviews.find((review) => review._id == reviewId);
-			votedReview = formatReviewObject(votedReview);
-		}
+		votedReview = getReviewByIdFromReviewee(
+			formatRevieweeObject(reviewee),
+			reviewId
+		);
+
 		return { votedReview };
+	}
+
+	function getReviewByIdFromReviewee(reviewee, reviewId) {
+		let review = null;
+		if (reviewee) {
+			review = reviewee.reviews.find((review) => review.reviewId == reviewId);
+		}
+
+		return review;
+	}
+
+	async function getReviewById(revieweeId, reviewId) {
+		const { reviewee } = await getRevieweeById(true, revieweeId);
+		let review = null;
+		review = getReviewByIdFromReviewee(reviewee, reviewId);
+		return { review };
 	}
 
 	function formatRevieweeObject(revieweeObject) {
@@ -135,22 +189,31 @@ function RevieweeService() {
 		formattedReviewee = formattedReviewee.toObject();
 		formattedReviewee.revieweeId = formattedReviewee._id;
 		formattedReviewee.numberOfReviews = formattedReviewee.reviews.length;
+
+		const FLOATING_POINT = 2;
+
 		if (revieweeObject.reviews.length > 0) {
 			formattedReviewee.overallRating = (
 				sumOverallRating / formattedReviewee.reviews.length
-			).toFixed(2);
-	
+			).toFixed(FLOATING_POINT);
+
 			formattedReviewee.recommendationRating = (
 				sumRecommendationRating / formattedReviewee.reviews.length
-			).toFixed(2);
-			
+			).toFixed(FLOATING_POINT);
+
 			formattedReviewee.difficultyRating = (
 				sumDifficultyRating / formattedReviewee.reviews.length
-			).toFixed(2);
+			).toFixed(FLOATING_POINT);
 
-			formattedReviewee.overallRating = parseFloat(formattedReviewee.overallRating);
-			formattedReviewee.recommendationRating = parseFloat(formattedReviewee.recommendationRating);
-			formattedReviewee.difficultyRating = parseFloat(formattedReviewee.difficultyRating);
+			formattedReviewee.overallRating = parseFloat(
+				formattedReviewee.overallRating
+			);
+			formattedReviewee.recommendationRating = parseFloat(
+				formattedReviewee.recommendationRating
+			);
+			formattedReviewee.difficultyRating = parseFloat(
+				formattedReviewee.difficultyRating
+			);
 		} else {
 			formattedReviewee.overallRating = '-';
 			formattedReviewee.recommendationRating = '-';
