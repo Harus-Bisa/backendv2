@@ -79,13 +79,13 @@ function RevieweeService() {
 	async function getRevieweeById(authenticated, revieweeId) {
 		const REVIEW_LIMIT = 3;
 		let reviewee = await Reviewee.findById(revieweeId);
-
+		reviewee = formatRevieweeObject(reviewee);
 		if (!authenticated) {
 			// limit returned review
 			reviewee.reviews = limitReviewCount(reviewee.reviews, REVIEW_LIMIT);
 		}
 
-		return { reviewee: formatRevieweeObject(reviewee) };
+		return { reviewee };
 	}
 
 	async function updateHelpfulnessVote(
