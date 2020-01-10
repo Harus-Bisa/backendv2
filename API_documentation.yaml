@@ -60,6 +60,12 @@ components:
         helpfulDownVote:
           type: integer
           example: 2
+        userVote:
+          type: string
+          example: 'upVote'
+        isAuthor:
+          type: boolean
+          example: true
         tags:
           type: array
           items:
