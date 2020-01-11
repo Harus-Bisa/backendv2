@@ -16,6 +16,7 @@ function verifyToken(req, res, next) {
 		} catch {
 			// pass to next handler
 			// user can still do limited actions if not authenticated
+			req.authenticated = false;
 		}
 	}
 
