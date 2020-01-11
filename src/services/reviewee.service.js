@@ -1,4 +1,7 @@
 const Reviewee = require('../models/Reviewee');
+const UserService = require('./user.service');
+
+const userService = UserService();
 
 function RevieweeService() {
 	return Object.freeze({
@@ -34,7 +37,7 @@ function RevieweeService() {
 
 		const newReviewee = await Reviewee.create(formatedData);
 
-		return { newReviewee: formatRevieweeObject(newReviewee) };
+		return { newReviewee: await formatRevieweeObject(newReviewee) };
 	}
 
 	async function getRevieweesByName(name) {
@@ -76,10 +79,14 @@ function RevieweeService() {
 		return { revieweeId: foundRevieweeId, newReview };
 	}
 
-	async function getRevieweeById(authenticated, revieweeId) {
+	async function getRevieweeById(
+		revieweeId,
+		authenticated = true,
+		userId = undefined
+	) {
 		const REVIEW_LIMIT = 3;
 		let reviewee = await Reviewee.findById(revieweeId);
-		reviewee = formatRevieweeObject(reviewee);
+		reviewee = await formatRevieweeObject(reviewee, userId);
 		if (!authenticated) {
 			// limit returned review
 			reviewee.reviews = limitReviewCount(reviewee.reviews, REVIEW_LIMIT);
@@ -93,7 +100,8 @@ function RevieweeService() {
 		switchVote,
 		revieweeId,
 		reviewId,
-		vote
+		vote,
+		userId
 	) {
 		let reviewee = null;
 
@@ -140,7 +148,7 @@ function RevieweeService() {
 
 		let votedReview = null;
 		votedReview = getReviewByIdFromReviewee(
-			formatRevieweeObject(reviewee),
+			await formatRevieweeObject(reviewee, userId),
 			reviewId
 		);
 
@@ -157,13 +165,13 @@ function RevieweeService() {
 	}
 
 	async function getReviewById(revieweeId, reviewId) {
-		const { reviewee } = await getRevieweeById(true, revieweeId);
+		const { reviewee } = await getRevieweeById(revieweeId);
 		let review = null;
 		review = getReviewByIdFromReviewee(reviewee, reviewId);
 		return { review };
 	}
 
-	function formatRevieweeObject(revieweeObject) {
+	async function formatRevieweeObject(revieweeObject, userId = undefined) {
 		if (!revieweeObject) {
 			return null;
 		}
@@ -181,8 +189,26 @@ function RevieweeService() {
 			sumRecommendationRating +=
 				formattedReviewee.reviews[i].recommendationRating;
 
+			let isAuthor = false;
+			let userVote;
+
+			if (userId) {
+				const { userData } = await userService.getUserDataById(userId);
+
+				const curUserVote = userData.helpfulnessVotes.find(
+					(vote) =>
+						revieweeObject._id.equals(vote.revieweeId) &&
+						formattedReviewee.reviews[i]._id.equals(vote.reviewId)
+				);
+				userVote = curUserVote ? curUserVote.vote : null;
+
+				// TODO: set is author flag
+			}
+
 			formattedReviewee.reviews[i] = formatReviewObject(
-				formattedReviewee.reviews[i]
+				formattedReviewee.reviews[i],
+				isAuthor,
+				userVote
 			);
 		}
 
@@ -226,14 +252,19 @@ function RevieweeService() {
 		return formattedReviewee;
 	}
 
-	function formatReviewObject(reviewObject) {
+	function formatReviewObject(
+		reviewObject,
+		isAuthor = false,
+		userVote = undefined
+	) {
 		if (!reviewObject) {
 			return null;
 		}
 		let formattedReview = reviewObject.toObject();
 		formattedReview.reviewId = formattedReview._id;
+		formattedReview.isAuthor = isAuthor;
+		formattedReview.userVote = userVote;
 		delete formattedReview._id;
-
 		return formattedReview;
 	}
 

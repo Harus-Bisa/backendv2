@@ -4,10 +4,25 @@ function UserService() {
 	return Object.freeze({
 		addOutgoingReview,
 		updateHelpfulnessVote,
+		getUserDataById,
 		// getOutgoingReviews,
 		// getHelpfulnessVotes,
 		// getFollowing,
 	});
+
+	async function getUserDataById(userId) {
+    let userData = await User.findById(userId);
+    if (userData) {
+      userData = userData.toObject();
+      userData.userId = userData._id;
+
+      delete userData.password;
+      delete userData._id;
+      delete userData.__v;
+
+    }
+		return { userData };
+	}
 
 	async function addOutgoingReview(userId, revieweeId, reviewId) {
 		const review = {

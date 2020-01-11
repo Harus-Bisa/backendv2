@@ -52,8 +52,9 @@ router.get('/', async (req, res) => {
 router.get('/:revieweeId', authentication, async (req, res) => {
 	try {
 		const { reviewee } = await revieweeService.getRevieweeById(
+			req.params.revieweeId,
 			req.authenticated,
-			req.params.revieweeId
+			req.userId
 		);
 		if (reviewee) {
 			res.statusMessage = 'Get reviewee is successful.';
@@ -128,7 +129,8 @@ router.post(
 					switchVote,
 					selectedVote.revieweeId,
 					selectedVote.reviewId,
-					selectedVote.vote
+					selectedVote.vote,
+					req.userId
 				);
 
 				// check is duplicate TODO
