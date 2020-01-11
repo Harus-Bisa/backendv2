@@ -106,14 +106,45 @@ router.post(
 		if (!req.authenticated) {
 			res.statusMessage = 'Authentication is required to add vote.';
 			return res.status(401).end();
-		}
+		} 
+		
 		try {
-			const { review } = await revieweeService.getReviewById(
+			// const { review } = await revieweeService.getReviewById(
+			// 	req.params.revieweeId,
+			// 	req.params.reviewId
+			// );
+			const {
+				cancelVote,
+				switchVote,
+				selectedVote,
+				user
+			} = await userService.updateHelpfulnessVote(
+				req.userId,
 				req.params.revieweeId,
-				req.params.reviewId
+				req.params.reviewId,
+				req.params.vote
 			);
-			const { userData } = await userService.getUserDataById(req.userId);
-			if (review && userData) {
+
+			if (!user) {
+				res.statusMessage = 'There was an error finding the user associated with the authentication token.';
+				return res.status(401).end();
+			}
+
+			const { votedReview } = await revieweeService.updateHelpfulnessVote(
+				cancelVote,
+				switchVote,
+				selectedVote.revieweeId,
+				selectedVote.reviewId,
+				selectedVote.vote,
+				req.userId
+			);g
+
+			if (votedReview) {
+				// check is duplicate TODO
+				res.statusMessage = 'Add helpfulness vote to review is successful.';
+				return res.status(201).send(votedReview);
+			} else {
+				// cancel adding helpfulness vote to user
 				const {
 					cancelVote,
 					switchVote,
@@ -125,19 +156,6 @@ router.post(
 					req.params.vote
 				);
 
-				const { votedReview } = await revieweeService.updateHelpfulnessVote(
-					cancelVote,
-					switchVote,
-					selectedVote.revieweeId,
-					selectedVote.reviewId,
-					selectedVote.vote,
-					req.userId
-				);
-
-				// check is duplicate TODO
-				res.statusMessage = 'Add helpfulness vote to review is successful.';
-				return res.status(201).send(votedReview);
-			} else {
 				res.statusMessage = 'Review not found.';
 				return res.status(404).end();
 			}

@@ -46,12 +46,16 @@ function UserService() {
 		};
 
 		const user = await User.findById(userId);
-		const userHelpfulnessVotes = user.helpfulnessVotes;
+		let existingReviewVote;
 
-		const existingReviewVote = userHelpfulnessVotes.find(
-			(curVote) =>
-				revieweeId == curVote.revieweeId && reviewId == curVote.reviewId
-		);
+		if (user) {
+			existingReviewVote = user.helpfulnessVotes.find(
+				(curVote) =>
+					revieweeId == curVote.revieweeId && reviewId == curVote.reviewId
+			);
+		} else {
+			return { cancelVote, switchVote, selectedVote, user };
+		}
 
 		if (!existingReviewVote) {
 			// not yet vote previously
@@ -93,7 +97,7 @@ function UserService() {
 				{ new: true }
 			);
 		}
-		return { cancelVote, switchVote, selectedVote };
+		return { cancelVote, switchVote, selectedVote, user };
 	}
 }
 
