@@ -86,10 +86,12 @@ function RevieweeService() {
 	) {
 		const REVIEW_LIMIT = 3;
 		let reviewee = await Reviewee.findById(revieweeId);
-		reviewee = await formatRevieweeObject(reviewee, userId);
-		if (!authenticated) {
-			// limit returned review
-			reviewee.reviews = limitReviewCount(reviewee.reviews, REVIEW_LIMIT);
+		if (reviewee) {
+			reviewee = await formatRevieweeObject(reviewee, userId);
+			if (!authenticated) {
+				// limit returned review
+				reviewee.reviews = limitReviewCount(reviewee.reviews, REVIEW_LIMIT);
+			}
 		}
 
 		return { reviewee };
