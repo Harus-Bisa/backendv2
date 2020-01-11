@@ -6,6 +6,8 @@ info:
 
 servers:
   - url: https://www.api.harusbisa.net
+    description: Production server
+  - url: https://www.api.harusbisa.net/dev
     description: Development server
   
 components:
