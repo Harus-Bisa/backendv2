@@ -194,13 +194,14 @@ function RevieweeService() {
 
 			if (userId) {
 				const { userData } = await userService.getUserDataById(userId);
-
-				const curUserVote = userData.helpfulnessVotes.find(
-					(vote) =>
-						revieweeObject._id.equals(vote.revieweeId) &&
-						formattedReviewee.reviews[i]._id.equals(vote.reviewId)
-				);
-				userVote = curUserVote ? curUserVote.vote : null;
+				if (userData) { //make sure user exists
+					const curUserVote = userData.helpfulnessVotes.find(
+						(vote) =>
+							revieweeObject._id.equals(vote.revieweeId) &&
+							formattedReviewee.reviews[i]._id.equals(vote.reviewId)
+					);
+					userVote = curUserVote ? curUserVote.vote : null;
+				}
 
 				// TODO: set is author flag
 			}
