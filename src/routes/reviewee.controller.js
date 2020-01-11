@@ -107,12 +107,8 @@ router.post(
 			res.statusMessage = 'Authentication is required to add vote.';
 			return res.status(401).end();
 		} 
-		
+
 		try {
-			// const { review } = await revieweeService.getReviewById(
-			// 	req.params.revieweeId,
-			// 	req.params.reviewId
-			// );
 			const {
 				cancelVote,
 				switchVote,
@@ -137,7 +133,7 @@ router.post(
 				selectedVote.reviewId,
 				selectedVote.vote,
 				req.userId
-			);g
+			);
 
 			if (votedReview) {
 				// check is duplicate TODO
