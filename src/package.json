@@ -5,12 +5,12 @@
   "main": "app.js",
   "scripts": {
     "test": "jest",
-    "start": "cross-env NODE_ENV=production node server.js",
-    "dev": "cross-env NODE_ENV=development nodemon server.js",
-    "prod-forever-start": "cross-env NODE_ENV=production pm2 start server.js --name prod",
-    "dev-forever-start": "cross-env NODE_ENV=development pm2 start server.js --name dev",
-    "prod-forever-restart": "cross-env NODE_ENV=production pm2 restart prod",
-    "dev-forever-restart": "cross-env NODE_ENV=development pm2 restart dev",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "prod-forever-start": "pm2 start server.js --name prod",
+    "dev-forever-start": "pm2 start server.js --name dev",
+    "prod-forever-restart": "pm2 restart prod",
+    "dev-forever-restart": "pm2 restart dev",
     "prod-forever-stop": "pm2 stop prod",
     "dev-forever-stop": "pm2 stop dev"
   },
@@ -26,7 +26,6 @@
     "mongoose": "^5.8.1"
   },
   "devDependencies": {
-    "cross-env": "^6.0.3",
     "jest": "^24.9.0",
     "nodemon": "^2.0.2",
     "prettier": "^1.19.1",

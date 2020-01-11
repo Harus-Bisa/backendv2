@@ -4,7 +4,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 module.exports = {
-	port: process.env.NODE_ENV === 'production' ? process.env.PORT : process.env.PORT_DEV,
-	mongodbUrl: process.env.NODE_ENV === 'production' ? process.env.MONGODB_URL : process.env.MONGODB_URL_DEV,
+	port: process.env.PORT,
+	mongodbUrl: process.env.MONGODB_URL,
 	jwtSecret: process.env.JWT_SECRET,
 };
