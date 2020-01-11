@@ -8,10 +8,6 @@ const router = express.Router();
 const revieweeService = RevieweeService();
 const userService = UserService();
 
-router.get('/test', (req, res) => {
-	return res.status(200).send('testing success');
-});
-
 router.post('/', authentication, async (req, res) => {
 	if (!req.authenticated) {
 		res.statusMessage = 'Authentication is required to create new review.';
