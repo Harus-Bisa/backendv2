@@ -112,7 +112,8 @@ router.post(
 				req.params.revieweeId,
 				req.params.reviewId
 			);
-			if (review) {
+			const { user } = await userService.getUserDataById(req.userId);
+			if (review && user) {
 				const {
 					cancelVote,
 					switchVote,
