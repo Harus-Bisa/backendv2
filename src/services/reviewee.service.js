@@ -216,6 +216,7 @@ function RevieweeService() {
 		formattedReviewee = formattedReviewee.toObject();
 		formattedReviewee.revieweeId = formattedReviewee._id;
 		formattedReviewee.numberOfReviews = formattedReviewee.reviews.length;
+		formattedReviewee.reviews = formattedReviewee.reviews.reverse();
 
 		const FLOATING_POINT = 2;
 
