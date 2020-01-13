@@ -5,10 +5,25 @@ function UserService() {
 		addOutgoingReview,
 		updateHelpfulnessVote,
 		getUserDataById,
+		getUserByEmail,
+		verifyUser,
 		// getOutgoingReviews,
 		// getHelpfulnessVotes,
 		// getFollowing,
 	});
+
+	async function getUserByEmail(email) {
+		let user = await User.findOne({ email });
+		if (user) {
+			user = user.toObject();
+			user.userId = user._id;
+
+			delete user.password;
+			delete user._id;
+			delete user.__v;
+		}
+		return { user };
+	}
 
 	async function getUserDataById(userId) {
 		let userData = await User.findById(userId);
@@ -98,6 +113,15 @@ function UserService() {
 			);
 		}
 		return { cancelVote, switchVote, selectedVote, user };
+	}
+
+	async function verifyUser(userId) {
+		const user = await User.findByIdAndUpdate(
+			userId,
+			{ $set: { isVerified: true } },
+			{ new: true }
+		);
+		return { user };
 	}
 }
 

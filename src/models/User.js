@@ -20,6 +20,7 @@ const userSchema = new mongoose.Schema({
 		},
 	],
 	following: [mongoose.Schema.Types.ObjectId],
+	isVerified: { type: Boolean, default: false },
 });
 
 module.exports = mongoose.model('User', userSchema);

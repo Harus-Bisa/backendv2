@@ -1,14 +1,47 @@
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
+const mg = require('nodemailer-mailgun-transport');
 
 const User = require('../models/User');
+const VerificationToken = require('../models/VerificationToken');
 const config = require('../config');
 
 function AuthService() {
 	return Object.freeze({
 		signup,
 		login,
+		getUserAuthenticationToken,
+		sendVerificationEmail
 	});
+
+	async function sendVerificationEmail(userId, email) {
+		// send verification email
+		const auth = {
+			auth: {
+				api_key: config.mailgunAPIKey,
+				domain: config.mailgunDomain,
+			},
+		};
+
+		const token = await VerificationToken.create({
+			userId: userId,
+			token: crypto.randomBytes(16).toString('hex'),
+		});
+
+		const nodemailerMailgun = nodemailer.createTransport(mg(auth));
+		const verificationLink =
+			'http://' + config.host + '/verification/' + token.token;
+
+		nodemailerMailgun.sendMail({
+			from: 'noreply@harusbisa.net',
+			to: email,
+			subject: 'Harus Bisa Email Verification',
+			text:
+				'Please verify your email by clicking this link: ' + verificationLink,
+		});
+	}
 
 	async function signup(newUserData) {
 		let userAlreadyExist = false;
@@ -19,6 +52,8 @@ function AuthService() {
 			// email is not used yet
 			newUserData.password = bcrypt.hashSync(newUserData.password, 10);
 			newUser = await User.create(newUserData);
+
+			sendVerificationEmail(newUser._id, newUser.email);
 		} else {
 			userAlreadyExist = true;
 		}
@@ -29,6 +64,7 @@ function AuthService() {
 		const user = await User.findOne({ email: loginData.email });
 		let authorized = false;
 		let credential = null;
+		let verified = false;
 
 		if (user) {
 			const correctPassword = user.password;
@@ -36,7 +72,11 @@ function AuthService() {
 				loginData.password,
 				correctPassword
 			);
+
 			if (passwordMatch) {
+				if (user.isVerified) {
+					verified = true;
+				}
 				authorized = true;
 				const tokenPayload = {
 					userId: user._id,
@@ -53,7 +93,12 @@ function AuthService() {
 			}
 		}
 
-		return { authorized, credential };
+		return { authorized, credential, verified };
+	}
+
+	async function getUserAuthenticationToken(token) {
+		const userToken = await VerificationToken.findOne({token: token});
+		return {userToken};
 	}
 }
 

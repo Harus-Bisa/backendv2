@@ -7,4 +7,7 @@ module.exports = {
 	port: process.env.PORT,
 	mongodbUrl: process.env.MONGODB_URL,
 	jwtSecret: process.env.JWT_SECRET,
+	mailgunAPIKey: process.env.MAILGUN_API_KEY,
+	mailgunDomain: process.env.MAILGUN_DOMAIN,
+	host: process.env.HOST
 };

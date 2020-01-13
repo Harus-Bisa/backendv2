@@ -23,7 +23,9 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.8.1"
+    "mongoose": "^5.8.1",
+    "nodemailer": "^6.4.2",
+    "nodemailer-mailgun-transport": "^2.0.0"
   },
   "devDependencies": {
     "jest": "^24.9.0",

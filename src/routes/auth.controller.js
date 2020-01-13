@@ -1,9 +1,11 @@
 const express = require('express');
 
 const AuthService = require('../services/auth.service');
+const UserService = require('../services/user.service');
 
 const router = express.Router();
 const authService = AuthService();
+const userService = UserService();
 
 router.post('/signup', async (req, res) => {
 	const { userAlreadyExist, newUser } = await authService.signup(req.body);
@@ -12,8 +14,8 @@ router.post('/signup', async (req, res) => {
 			res.statusMessage = 'Email already exists';
 			return res.status(409).end();
 		} else {
-			res.statusMessage = 'Create user is succesful';
-			return res.status(201).send(newUser);
+			res.statusMessage = `Create user is succesful. A verification email has been sent to ${req.body.email}.`;
+			return res.status(201).end();
 		}
 	} catch (err) {
 		console.log(err);
@@ -23,20 +25,59 @@ router.post('/signup', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-	const { authorized, credential } = await authService.login(req.body);
+	const { authorized, credential, verified } = await authService.login(
+		req.body
+	);
 
 	try {
-		if (authorized) {
+		if (authorized && verified) {
 			res.statusMessage = 'Login is successful';
 			return res.status(200).send(credential);
+		} else if (authorized && !verified) {
+			res.statusMessage = 'User email is not verified';
+			return res.status(401).end();
 		} else {
 			res.statusMessage = 'Please provide correct email and password';
-			return res.status(401).send();
+			return res.status(401).end();
 		}
 	} catch (err) {
 		console.log(err);
 		res.statusMessage = 'There was error logging in.';
 		return res.status(500).end();
+	}
+});
+
+router.get('/verification/:token', async (req, res) => {
+	const { userToken } = await authService.getUserAuthenticationToken(
+		req.params.token
+	);
+
+	if (!userToken) {
+		res.statusMessage = 'We were unable to find a user for this token.';
+		return res.status(404).end();
+	}
+
+	const { user } = await userService.verifyUser(userToken.userId);
+	if (!user) {
+		console.log('boom');
+		res.statusMessage = 'We were unable to find a user for this token.';
+		return res.status(404).end();
+	} else {
+		const LOGIN_URL = 'https://www.harusbisa.net/login';
+		return res.status(301).redirect(LOGIN_URL);
+	}
+});
+
+router.post('/resend', async (req, res) => {
+	const {user} = await userService.getUserByEmail(req.body.email);
+
+	if (!user) {
+		res.statusMessage = 'We were unable to find user with the given email.'
+		return res.status(404).end();
+	} else {
+		authService.sendVerificationEmail(user.userId, req.body.email);
+		const LOGIN_URL = 'https://www.harusbisa.net/login';
+		return res.status(301).redirect(LOGIN_URL);
 	}
 });
 
