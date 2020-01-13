@@ -9,5 +9,6 @@ module.exports = {
 	jwtSecret: process.env.JWT_SECRET,
 	mailgunAPIKey: process.env.MAILGUN_API_KEY,
 	mailgunDomain: process.env.MAILGUN_DOMAIN,
-	host: process.env.HOST
+	host: process.env.HOST,
+	clientLoginUrl: process.env.CLIENT_LOGIN_URL
 };

@@ -7,6 +7,9 @@ const router = express.Router();
 const authService = AuthService();
 const userService = UserService();
 
+const config = require('../config');
+const LOGIN_URL = config.clientLoginUrl;
+
 router.post('/signup', async (req, res) => {
 	const { userAlreadyExist, newUser } = await authService.signup(req.body);
 	try {
@@ -59,11 +62,9 @@ router.get('/verification/:token', async (req, res) => {
 
 	const { user } = await userService.verifyUser(userToken.userId);
 	if (!user) {
-		console.log('boom');
 		res.statusMessage = 'We were unable to find a user for this token.';
 		return res.status(404).end();
 	} else {
-		const LOGIN_URL = 'https://www.harusbisa.net/login';
 		return res.status(301).redirect(LOGIN_URL);
 	}
 });
@@ -76,7 +77,6 @@ router.post('/resend', async (req, res) => {
 		return res.status(404).end();
 	} else {
 		authService.sendVerificationEmail(user.userId, req.body.email);
-		const LOGIN_URL = 'https://www.harusbisa.net/login';
 		return res.status(301).redirect(LOGIN_URL);
 	}
 });
