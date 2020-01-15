@@ -35,9 +35,11 @@ function RevieweeService() {
 			],
 		};
 
-		const newReviewee = await Reviewee.create(formatedData);
+		let newReviewee = await Reviewee.create(formatedData);
+		newReviewee = await formatRevieweeObject(newReviewee);
+		newReviewee.reviews[0].isAuthor = true;
 
-		return { newReviewee: await formatRevieweeObject(newReviewee) };
+		return { newReviewee };
 	}
 
 	async function getRevieweesByName(name) {
@@ -70,7 +72,7 @@ function RevieweeService() {
 		let foundRevieweeId;
 		if (reviewee) {
 			foundRevieweeId = reviewee._id;
-			newReview = formatReviewObject(reviewee.reviews.pop());
+			newReview = formatReviewObject(reviewee.reviews.pop(), true);
 		} else {
 			foundRevieweeId = null;
 			newReview = null;
@@ -196,16 +198,21 @@ function RevieweeService() {
 
 			if (userId) {
 				const { userData } = await userService.getUserDataById(userId);
-				if (userData) { //make sure user exists
+				if (userData) {
+					//make sure user exists
 					const curUserVote = userData.helpfulnessVotes.find(
 						(vote) =>
 							revieweeObject._id.equals(vote.revieweeId) &&
 							formattedReviewee.reviews[i]._id.equals(vote.reviewId)
 					);
 					userVote = curUserVote ? curUserVote.vote : null;
-				}
 
-				// TODO: set is author flag
+					isAuthor = userData.outgoingReviews.some(
+						(review) =>
+							revieweeObject._id.equals(review.revieweeId) &&
+							formattedReviewee.reviews[i]._id.equals(review.reviewId)
+					);
+				}
 			}
 
 			formattedReviewee.reviews[i] = formatReviewObject(
@@ -218,7 +225,8 @@ function RevieweeService() {
 		formattedReviewee = formattedReviewee.toObject();
 		formattedReviewee.revieweeId = formattedReviewee._id;
 		formattedReviewee.numberOfReviews = formattedReviewee.reviews.length;
-		formattedReviewee.reviews = formattedReviewee.reviews.reverse();
+		// formattedReviewee.reviews = formattedReviewee.reviews.reverse();
+		formattedReviewee.reviews = sortReviewsByAuthor(formattedReviewee.reviews);
 
 		const FLOATING_POINT = 2;
 
@@ -279,6 +287,25 @@ function RevieweeService() {
 			limitedReviews.push(reviews[i]);
 		}
 		return limitedReviews;
+	}
+
+	function sortReviewsByAuthor(reviews) {
+		reviews = reviews.reverse();
+
+		let isAuthorReviews = [];
+		let notAuthorReviews = [];
+
+		reviews.forEach((review) => {
+			if (review.isAuthor === true) {
+				isAuthorReviews.push(review);
+			} else {
+				notAuthorReviews.push(review);
+			}
+		});
+
+		reviews = isAuthorReviews.concat(notAuthorReviews);
+
+		return reviews;
 	}
 }
 
