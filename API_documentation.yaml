@@ -180,6 +180,48 @@ paths:
         '500':
           description: There was an error logging in.
   
+  /verification/{token}:
+    get:
+      summary: Verify user account.
+      tags:
+       - Authentication
+      parameters: 
+        - in: path
+          required: true
+          name: token
+          description: Temporary token given to the user to verify the account.
+          schema:
+            type: string
+            example: '5db492c349a67b33b8d0a2a2'
+      responses:
+        '301':
+          description: Redirect the user to the login page.
+        '404':
+          description: We were unable to find a user for this token.
+  
+  /resend:
+    post:
+      summary: Resend verification email to the user.
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+             type: object
+             required:
+              - email
+             properties:
+              email:
+                type: string
+                example: 'john.doe@email.com'
+      responses:
+        '301':
+          description: Redirect the user to the login page.
+        '404':
+          description: We were unable to find a user with the given email.
+  
   /reviewees:
     post:
       summary: Create a new review for new reviewee.
