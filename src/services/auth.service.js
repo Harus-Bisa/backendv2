@@ -32,7 +32,7 @@ function AuthService() {
 
 		const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 		const verificationLink =
-			'http://' + config.host + '/verification/' + token.token;
+			config.host + '/verification/' + token.token;
 
 		nodemailerMailgun.sendMail({
 			from: 'noreply@harusbisa.net',
