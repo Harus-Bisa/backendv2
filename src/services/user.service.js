@@ -4,7 +4,7 @@ function UserService() {
 	return Object.freeze({
 		addOutgoingReview,
 		updateHelpfulnessVote,
-		getUserDataById,
+		getUserById,
 		getUserByEmail,
 		verifyUser,
 		// getOutgoingReviews,
@@ -25,17 +25,17 @@ function UserService() {
 		return { user };
 	}
 
-	async function getUserDataById(userId) {
-		let userData = await User.findById(userId);
-		if (userData) {
-			userData = userData.toObject();
-			userData.userId = userData._id;
+	async function getUserById(userId) {
+		let user = await User.findById(userId);
+		if (user) {
+			user = user.toObject();
+			user.userId = user._id;
 
-			delete userData.password;
-			delete userData._id;
-			delete userData.__v;
+			delete user.password;
+			delete user._id;
+			delete user.__v;
 		}
-		return { userData };
+		return { user };
 	}
 
 	async function addOutgoingReview(userId, revieweeId, reviewId) {

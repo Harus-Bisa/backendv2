@@ -106,14 +106,14 @@ router.post(
 		if (!req.authenticated) {
 			res.statusMessage = 'Authentication is required to add vote.';
 			return res.status(401).end();
-		} 
+		}
 
 		try {
 			const {
 				cancelVote,
 				switchVote,
 				selectedVote,
-				user
+				user,
 			} = await userService.updateHelpfulnessVote(
 				req.userId,
 				req.params.revieweeId,
@@ -122,7 +122,8 @@ router.post(
 			);
 
 			if (!user) {
-				res.statusMessage = 'There was an error finding the user associated with the authentication token.';
+				res.statusMessage =
+					'There was an error finding the user associated with the authentication token.';
 				return res.status(401).end();
 			}
 

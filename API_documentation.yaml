@@ -26,6 +26,46 @@ components:
         userId:
           type: string
           example: '5db6093a7f75df3ce6c12095'
+            
+    User:
+      properties:
+        userId:
+          type: string
+          example: '5e01c0379a3aba19b056f844'
+        name:
+          type: string
+          example: 'John Doe'
+        email:
+          type: string
+          example: 'john.doe@gmail.com'
+        isVerified:
+          type: boolean
+          example: true
+        outgoingReviews:
+          type: array
+          items:
+            type: object
+            properties:
+              revieweeId:
+                type: string
+                example: '5e01c0379a3aba19b056f844'
+              reviewId:
+                type: string
+                example: '5e17b09bcf138f14b804c386'
+        helpfulnessVotes:
+          type: array
+          items:
+            type: object
+            properties:
+              revieweeId:
+                type: string
+                example: '5e01c0379a3aba19b056f844'
+              reviewId:
+                type: string
+                example: '5e17b09bcf138f14b804c386'
+              vote:
+                type: string
+                example: 'upVote'
           
     Review:
       properties:
@@ -221,7 +261,36 @@ paths:
           description: Redirect the user to the login page.
         '404':
           description: We were unable to find a user with the given email.
-  
+          
+  /users/{userId}:
+    get:
+      summary: Get user data by id.
+      tags:
+      - User
+      security: 
+        - BearerAuth: []
+      parameters: 
+        - in: path
+          required: true
+          name: userId
+          description: Id of the user.
+          schema:
+            type: string
+            example: '5db492c349a67b33b8d0a2a2'
+      responses:
+        '200':
+          description: Get user is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Please authenticate with the correct credential.
+        '404':
+          description: User not found.
+        '500':
+          description: There was an error getting the user.
+      
   /reviewees:
     post:
       summary: Create a new review for new reviewee.

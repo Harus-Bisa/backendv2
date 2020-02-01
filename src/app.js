@@ -16,4 +16,7 @@ app.use('/reviewees', revieweeController);
 const authController = require('./routes/auth.controller');
 app.use('/', authController);
 
+const userController = require('./routes/user.controller');
+app.use('/users', userController);
+
 module.exports = app;

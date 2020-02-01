@@ -197,17 +197,17 @@ function RevieweeService() {
 			let userVote;
 
 			if (userId) {
-				const { userData } = await userService.getUserDataById(userId);
-				if (userData) {
+				const { user } = await userService.getUserById(userId);
+				if (user) {
 					//make sure user exists
-					const curUserVote = userData.helpfulnessVotes.find(
+					const curUserVote = user.helpfulnessVotes.find(
 						(vote) =>
 							revieweeObject._id.equals(vote.revieweeId) &&
 							formattedReviewee.reviews[i]._id.equals(vote.reviewId)
 					);
 					userVote = curUserVote ? curUserVote.vote : null;
 
-					isAuthor = userData.outgoingReviews.some(
+					isAuthor = user.outgoingReviews.some(
 						(review) =>
 							revieweeObject._id.equals(review.revieweeId) &&
 							formattedReviewee.reviews[i]._id.equals(review.reviewId)

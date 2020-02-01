@@ -37,10 +37,12 @@ router.post('/login', async (req, res) => {
 			res.statusMessage = 'Login is successful';
 			return res.status(200).send(credential);
 		} else if (authorized && !verified) {
-			res.statusMessage = 'User email is not verified';
+			// res.statusMessage = 'User email is not verified';
+			res.statusMessage = 'Akun anda belum diverifikasi';
 			return res.status(401).end();
 		} else {
-			res.statusMessage = 'Please provide correct email and password';
+			// res.statusMessage = 'Please provide correct email and password';
+			res.statusMessage = 'Kombinasi e-mail dan password salah';
 			return res.status(401).end();
 		}
 	} catch (err) {
@@ -70,10 +72,10 @@ router.get('/verification/:token', async (req, res) => {
 });
 
 router.post('/resend', async (req, res) => {
-	const {user} = await userService.getUserByEmail(req.body.email);
+	const { user } = await userService.getUserByEmail(req.body.email);
 
 	if (!user) {
-		res.statusMessage = 'We were unable to find user with the given email.'
+		res.statusMessage = 'We were unable to find user with the given email.';
 		return res.status(404).end();
 	} else {
 		authService.sendVerificationEmail(user.userId, req.body.email);
