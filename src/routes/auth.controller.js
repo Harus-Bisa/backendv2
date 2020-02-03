@@ -79,7 +79,7 @@ router.post('/resend', async (req, res) => {
 		return res.status(404).end();
 	} else {
 		authService.sendVerificationEmail(user.userId, req.body.email);
-		return res.status(301).redirect(LOGIN_URL);
+		return res.status(200).send();
 	}
 });
 
