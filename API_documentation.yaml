@@ -257,8 +257,8 @@ paths:
                 type: string
                 example: 'john.doe@email.com'
       responses:
-        '301':
-          description: Redirect the user to the login page.
+        '200':
+          description: Verification email has been sent to the user.
         '404':
           description: We were unable to find a user with the given email.
           
