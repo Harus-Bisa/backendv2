@@ -290,6 +290,31 @@ paths:
           description: User not found.
         '500':
           description: There was an error getting the user.
+  
+  /schools:
+    get:
+      summary: Get list of schools matching the query.
+      tags:
+      - School
+      parameters: 
+        - in: query
+          name: school
+          description: Name of the school.
+          schema:
+            type: string
+            example: 'University of Texas at Austin'
+      responses:
+        '200':
+          description: Get list of schools matching the query is successful.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ['University of Texas at Austin', 'Universitas Prasetya Mulya']
+        '500':
+          description: There was an error getting the schools matching the query.
       
   /reviewees:
     post:
@@ -380,6 +405,12 @@ paths:
           schema:
             type: string
             example: 'Timothy Bryan'
+        - in: query
+          name: school
+          description: School of the reviewee.
+          schema:
+            type: string
+            example: University of Texas at Austin
       responses:
         '200':
           description: Get list of reviewees matching the query is successful.
