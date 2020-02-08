@@ -13,6 +13,9 @@ app.use(cors());
 const revieweeController = require('./routes/reviewee.controller');
 app.use('/reviewees', revieweeController);
 
+const schoolController = require('./routes/school.controller');
+app.use('/schools', schoolController);
+
 const authController = require('./routes/auth.controller');
 app.use('/', authController);
 

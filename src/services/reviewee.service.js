@@ -42,9 +42,15 @@ function RevieweeService() {
 		return { newReviewee };
 	}
 
-	async function getRevieweesByName(name) {
-		const searchQuery = name ? `(?i)(^| )${name}.*` : '.*';
-		let reviewees = await Reviewee.find({ name: { $regex: searchQuery } });
+	async function getRevieweesByName(name, school) {
+		const schoolQuery = school ? `(?i)(^| )${school}.*` : '.*';
+		const nameQuery = name ? `(?i)(^| )${name}.*` : '.*';
+		let reviewees = await Reviewee.find({
+			$and: [
+				{ name: { $regex: nameQuery } },
+				{ school: { $regex: schoolQuery } },
+			],
+		});
 		reviewees = reviewees.map((reviewee) => {
 			return {
 				revieweeId: reviewee._id,
