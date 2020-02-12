@@ -72,6 +72,9 @@ components:
         reviewId:
           type: string
           example: '5db492c349a67b33b8d0a2a2'
+        createAt:
+          type: number
+          example: 1581486483313
         courseName:
           type: string
           example: 'Brand Management 101'

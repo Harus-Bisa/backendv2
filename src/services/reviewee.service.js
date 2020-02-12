@@ -31,6 +31,7 @@ function RevieweeService() {
 					teachingStyles: revieweeData.teachingStyles,
 					helpfulUpVote: 0,
 					helpfulDownVote: 0,
+					createdAt: Date.now(),
 				},
 			],
 		};
@@ -65,6 +66,7 @@ function RevieweeService() {
 	async function createReview(revieweeId, reviewData) {
 		let newReview = {
 			...reviewData,
+			createdAt: Date.now(),
 			helpfulDownVote: 0,
 			helpfulUpVote: 0,
 		};

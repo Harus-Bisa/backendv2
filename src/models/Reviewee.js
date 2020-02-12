@@ -13,6 +13,7 @@ const reviewSchema = new mongoose.Schema({
 	helpfulDownVote: Number,
 	tags: [String],
 	teachingStyles: [String],
+	createdAt: Number
 });
 
 const revieweeSchema = new mongoose.Schema({
