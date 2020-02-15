@@ -32,6 +32,7 @@ function RevieweeService() {
 					helpfulUpVote: 0,
 					helpfulDownVote: 0,
 					createdAt: Date.now(),
+
 				},
 			],
 		};
@@ -48,7 +49,7 @@ function RevieweeService() {
 		const nameQuery = name ? `(?i)(^| )${name}.*` : '.*';
 		let reviewees = await Reviewee.find({
 			$and: [
-				{ name: { $regex: nameQuery } },
+				{ name: { $regex: nameQuery } }, 
 				{ school: { $regex: schoolQuery } },
 			],
 		});

@@ -22,4 +22,7 @@ app.use('/', authController);
 const userController = require('./routes/user.controller');
 app.use('/users', userController);
 
+const ticketController = require('./routes/ticket.controller');
+app.use('/tickets', ticketController);
+
 module.exports = app;
