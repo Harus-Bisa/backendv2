@@ -3,6 +3,8 @@ const UserService = require('./user.service');
 
 const userService = UserService();
 
+const FLOATING_POINT = 1;
+
 function RevieweeService() {
 	return Object.freeze({
 		createRevieweeWithReview,
@@ -53,7 +55,6 @@ function RevieweeService() {
 			],
 		});
 		reviewees = reviewees.map((reviewee) => {
-			const FLOATING_POINT = 2;
 			let sumOverallRating = 0;
 			const numberOfReviews = reviewee.reviews.length;
 
@@ -68,8 +69,8 @@ function RevieweeService() {
 				numberOfReviews: numberOfReviews,
 				overallRating:
 					numberOfReviews > 0
-						? parseFloat(
-								(sumOverallRating / numberOfReviews).toFixed(FLOATING_POINT)
+						? parseFloat(sumOverallRating / numberOfReviews).toFixed(
+								FLOATING_POINT
 						  )
 						: '-',
 			};
@@ -251,30 +252,25 @@ function RevieweeService() {
 		// formattedReviewee.reviews = formattedReviewee.reviews.reverse();
 		formattedReviewee.reviews = sortReviewsByAuthor(formattedReviewee.reviews);
 
-		const FLOATING_POINT = 2;
-
 		if (revieweeObject.reviews.length > 0) {
-			formattedReviewee.overallRating = (
-				sumOverallRating / formattedReviewee.reviews.length
-			).toFixed(FLOATING_POINT);
+			formattedReviewee.overallRating =
+				sumOverallRating / formattedReviewee.reviews.length;
 
-			formattedReviewee.recommendationRating = (
-				sumRecommendationRating / formattedReviewee.reviews.length
-			).toFixed(FLOATING_POINT);
+			formattedReviewee.recommendationRating =
+				sumRecommendationRating / formattedReviewee.reviews.length;
 
-			formattedReviewee.difficultyRating = (
-				sumDifficultyRating / formattedReviewee.reviews.length
-			).toFixed(FLOATING_POINT);
+			formattedReviewee.difficultyRating =
+				sumDifficultyRating / formattedReviewee.reviews.length;
 
 			formattedReviewee.overallRating = parseFloat(
 				formattedReviewee.overallRating
-			);
+			).toFixed(FLOATING_POINT);
 			formattedReviewee.recommendationRating = parseFloat(
 				formattedReviewee.recommendationRating
-			);
+			).toFixed(FLOATING_POINT);
 			formattedReviewee.difficultyRating = parseFloat(
 				formattedReviewee.difficultyRating
-			);
+			).toFixed(FLOATING_POINT);
 		} else {
 			formattedReviewee.overallRating = '-';
 			formattedReviewee.recommendationRating = '-';

@@ -128,16 +128,16 @@ components:
         - type: object
           properties:
             overallRating:
-              type: number
-              example: 4.5
-            recommendationRating:
-              type: number
-              example: 5
-            difficultyRating:
-              type: number
-              example: 4.5
-            numberOfReviews:
               type: string
+              example: '4.5'
+            recommendationRating:
+              type: string
+              example: '5'
+            difficultyRating:
+              type: string
+              example: '4.5'
+            numberOfReviews:
+              type: number
               example: 12
             reviews:
               type: array
@@ -155,6 +155,12 @@ components:
         school:
           type: string
           example: 'Universitas Prasetya Mulya'
+        overallRating:
+          type: string
+          example: '4.87'
+        numberOfReviews:
+          type: number
+          example: 13
           
     Ticket:
       properties:
