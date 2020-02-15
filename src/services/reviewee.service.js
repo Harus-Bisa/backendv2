@@ -32,7 +32,6 @@ function RevieweeService() {
 					helpfulUpVote: 0,
 					helpfulDownVote: 0,
 					createdAt: Date.now(),
-
 				},
 			],
 		};
@@ -49,15 +48,30 @@ function RevieweeService() {
 		const nameQuery = name ? `(?i)(^| )${name}.*` : '.*';
 		let reviewees = await Reviewee.find({
 			$and: [
-				{ name: { $regex: nameQuery } }, 
+				{ name: { $regex: nameQuery } },
 				{ school: { $regex: schoolQuery } },
 			],
 		});
 		reviewees = reviewees.map((reviewee) => {
+			const FLOATING_POINT = 2;
+			let sumOverallRating = 0;
+			const numberOfReviews = reviewee.reviews.length;
+
+			for (let i = 0; i < numberOfReviews; i++) {
+				sumOverallRating += reviewee.reviews[i].overallRating;
+			}
+
 			return {
 				revieweeId: reviewee._id,
 				name: reviewee.name,
 				school: reviewee.school,
+				numberOfReviews: numberOfReviews,
+				overallRating:
+					numberOfReviews > 0
+						? parseFloat(
+								(sumOverallRating / numberOfReviews).toFixed(FLOATING_POINT)
+						  )
+						: '-',
 			};
 		});
 
