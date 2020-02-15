@@ -609,7 +609,7 @@ paths:
               - authorEmail
               - targetId
               - targetType
-              - subject
+              - issueType
               - message
              properties:
               authorId:
@@ -624,7 +624,7 @@ paths:
               targetType:
                 type: string
                 example: 'review'
-              subject:
+              issueType:
                 type: string
                 example: 'Inappropriate Review'
               message:

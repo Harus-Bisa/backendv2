@@ -6,7 +6,7 @@ const ticketSchema = new mongoose.Schema({
   targetType: String,
   authorId: mongoose.Schema.Types.ObjectId,
   authorEmail: String,
-  subject: String,
+  issueType: String,
   message: String,
 });
 

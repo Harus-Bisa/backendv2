@@ -21,6 +21,7 @@ function TicketService() {
 		const message =
 			`<p>Target id: ${ticketInformation.targetId}</p>` +
 			`<p>Target type: ${ticketInformation.targetType}</p>` +
+			`<p>Issue type: ${ticketInformation.issueType}</p>` +
 			`<p>Author id: ${ticketInformation.authorId}</p>` +
 			`<p>Author email: ${ticketInformation.authorEmail}</p>` +
 			`<p>Message: ${ticketInformation.message}</p>`;
@@ -28,7 +29,7 @@ function TicketService() {
 		nodemailerMailgun.sendMail({
 			from: 'noreply@dosen-ku.com',
 			to: 'dosenku.official@gmail.com',
-			subject: ticketInformation.subject,
+			subject: 'New Ticket From App',
 			html: message,
 		});
 
