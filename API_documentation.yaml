@@ -128,14 +128,14 @@ components:
         - type: object
           properties:
             overallRating:
-              type: string
-              example: '4.5'
+              type: Number
+              example: 4.5
             recommendationRating:
-              type: string
-              example: '5'
+              type: Number
+              example: 5.0
             difficultyRating:
-              type: string
-              example: '4.5'
+              type: Number
+              example: 4.5
             numberOfReviews:
               type: number
               example: 12
@@ -156,8 +156,8 @@ components:
           type: string
           example: 'Universitas Prasetya Mulya'
         overallRating:
-          type: string
-          example: '4.87'
+          type: Number
+          example: 4.8
         numberOfReviews:
           type: number
           example: 13
@@ -505,13 +505,13 @@ paths:
                 example: 'Brand Management 101'
               overallRating:
                 type: number
-                example: 4.5
+                example: 4.5645
               recommendationRating:
                 type: number
-                example: 2.5
+                example: 2
               difficultyRating:
                 type: number
-                example: 3.5
+                example: 3.52
               textbookRequired:
                 type: boolean
                 example: true

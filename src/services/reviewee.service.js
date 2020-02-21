@@ -3,8 +3,6 @@ const UserService = require('./user.service');
 
 const userService = UserService();
 
-const FLOATING_POINT = 1;
-
 function RevieweeService() {
 	return Object.freeze({
 		createRevieweeWithReview,
@@ -68,11 +66,7 @@ function RevieweeService() {
 				school: reviewee.school,
 				numberOfReviews: numberOfReviews,
 				overallRating:
-					numberOfReviews > 0
-						? parseFloat(sumOverallRating / numberOfReviews).toFixed(
-								FLOATING_POINT
-						  )
-						: '-',
+					numberOfReviews > 0 ? sumOverallRating / numberOfReviews : 0,
 			};
 		});
 
@@ -262,19 +256,14 @@ function RevieweeService() {
 			formattedReviewee.difficultyRating =
 				sumDifficultyRating / formattedReviewee.reviews.length;
 
-			formattedReviewee.overallRating = parseFloat(
-				formattedReviewee.overallRating
-			).toFixed(FLOATING_POINT);
-			formattedReviewee.recommendationRating = parseFloat(
-				formattedReviewee.recommendationRating
-			).toFixed(FLOATING_POINT);
-			formattedReviewee.difficultyRating = parseFloat(
-				formattedReviewee.difficultyRating
-			).toFixed(FLOATING_POINT);
+			formattedReviewee.overallRating = formattedReviewee.overallRating;
+			formattedReviewee.recommendationRating =
+				formattedReviewee.recommendationRating;
+			formattedReviewee.difficultyRating = formattedReviewee.difficultyRating;
 		} else {
-			formattedReviewee.overallRating = '-';
-			formattedReviewee.recommendationRating = '-';
-			formattedReviewee.difficultyRating = '-';
+			formattedReviewee.overallRating = 0;
+			formattedReviewee.recommendationRating = 0;
+			formattedReviewee.difficultyRating = 0;
 		}
 
 		delete formattedReviewee.__v;
