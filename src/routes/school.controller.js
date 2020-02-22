@@ -18,4 +18,17 @@ router.get('/', async (req, res) => {
 	}
 });
 
+router.get('/popular', async (req, res) => {
+	try {
+		const { schools } = await schoolService.getMostPopular();
+		res.statusMessage = 'Get most popular schools is successful.';
+		return res.status(200).send(schools);
+	} catch (err) {
+		console.log(err);
+		res.statusMessage =
+			'There was an error getting the most popular schools.';
+		return res.status(500).end();
+	}
+});
+
 module.exports = router;

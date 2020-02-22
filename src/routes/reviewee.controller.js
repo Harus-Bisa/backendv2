@@ -2,13 +2,11 @@ const express = require('express');
 
 const RevieweeService = require('../services/reviewee.service');
 const UserService = require('../services/user.service');
-const SchoolService = require('../services/school.service');
 const authentication = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 const revieweeService = RevieweeService();
 const userService = UserService();
-const schoolService = SchoolService();
 
 router.post('/', authentication, async (req, res) => {
 	if (!req.authenticated) {
@@ -26,8 +24,6 @@ router.post('/', authentication, async (req, res) => {
 			newReviewee.revieweeId,
 			newReviewee.reviews[newReviewee.reviews.length - 1].reviewId
 		);
-
-		schoolService.addToSchoolList(req.body.school);
 
 		res.statusMessage = 'Create review for new reviewee is successful.';
 		return res.status(201).send(newReviewee);

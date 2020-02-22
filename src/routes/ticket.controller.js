@@ -6,11 +6,11 @@ const authentication = require('../middlewares/auth.middleware');
 const router = express.Router();
 const reviewTicketService = ReviewTicketService();
 
-router.post('/review/', authentication, async (req, res) => {
-	// if (!req.authenticated) {
-	// 	res.statusMessage = 'Authentication is required to create new ticket.';
-	// 	return res.status(401).end();
-	// }
+router.post('/reviews/', authentication, async (req, res) => {
+	if (!req.authenticated) {
+		res.statusMessage = 'Authentication is required to create new ticket.';
+		return res.status(401).end();
+	}
 
 	try {
 		const { newTicket } = await reviewTicketService.createTicket(

@@ -1,7 +1,11 @@
 const Reviewee = require('../models/Reviewee');
 const UserService = require('./user.service');
+const SchoolService = require('./school.service');
+const RecentService = require('./recent.service');
 
 const userService = UserService();
+const schoolService = SchoolService();
+const recentService = RecentService();
 
 function RevieweeService() {
 	return Object.freeze({
@@ -36,9 +40,19 @@ function RevieweeService() {
 			],
 		};
 
+		schoolService.addRevieweeCount(revieweeData.school);
+
 		let newReviewee = await Reviewee.create(formatedData);
 		newReviewee = await formatRevieweeObject(newReviewee);
 		newReviewee.reviews[0].isAuthor = true;
+
+		const newReview = {
+			name: revieweeData.name,
+			school: revieweeData.school,
+			review: revieweeData.review,
+			overallRating: newReviewee.overallRating
+		}
+		recentService.updateMostRecents('review', newReview);
 
 		return { newReviewee };
 	}
@@ -91,6 +105,14 @@ function RevieweeService() {
 		if (reviewee) {
 			foundRevieweeId = reviewee._id;
 			newReview = formatReviewObject(reviewee.reviews.pop(), true);
+
+			const mostRecentReview = {
+				name: reviewee.name,
+				school: reviewee.school,
+				review: newReview.review,
+				overallRating: newReview.overallRating
+			}
+			recentService.updateMostRecents('review', mostRecentReview);
 		} else {
 			foundRevieweeId = null;
 			newReview = null;

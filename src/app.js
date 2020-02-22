@@ -25,4 +25,7 @@ app.use('/users', userController);
 const ticketController = require('./routes/ticket.controller');
 app.use('/tickets', ticketController);
 
+const recentController = require('./routes/recent.controller');
+app.use('/recents', recentController);
+
 module.exports = app;
