@@ -128,13 +128,13 @@ components:
         - type: object
           properties:
             overallRating:
-              type: Number
+              type: number
               example: 4.5
             recommendationRating:
-              type: Number
+              type: number
               example: 5.0
             difficultyRating:
-              type: Number
+              type: number
               example: 4.5
             numberOfReviews:
               type: number
@@ -156,23 +156,11 @@ components:
           type: string
           example: 'Universitas Prasetya Mulya'
         overallRating:
-          type: Number
+          type: number
           example: 4.8
         numberOfReviews:
           type: number
           example: 13
-          
-    Ticket:
-      properties:
-        revieweeId:
-          type: string
-          example: '5db492c349a67b33b8d0a2a2'
-        name:
-          type: string
-          example: 'Timothy Bryan'
-        school:
-          type: string
-          example: 'Universitas Prasetya Mulya'
 
 paths:
   /signup:
@@ -591,9 +579,9 @@ paths:
         '500':
           description: There was an error adding helpfullness vote to the review.
           
-  /tickets:
+  /tickets/review/:
     post:
-      summary: Create ticket and send email to dosen-ku@gmail.com.
+      summary: Create new review flag and send email to dosen-ku@gmail.com.
       tags: 
       - Ticket
       security:
@@ -605,35 +593,30 @@ paths:
             schema:
              type: object
              required:
+              - revieweeId
+              - reviewId
               - authorId
-              - authorEmail
-              - targetId
-              - targetType
               - issueType
-              - message
              properties:
+              revieweeId:
+                type: string
+                example: '5e4745bdf4114d4630af5946'
+              reviewId:
+                type: string
+                example: '5e4745bdf4114d4630af5946'
               authorId:
                 type: string
                 example: '5e4745bdf4114d4630af5946'
-              authorEmail:
-                type: string
-                example: 'foo.bar@gmail.com'
-              targetId:
-                type: string
-                example: '5e4745bdf4114d4630af5946'
-              targetType:
-                type: string
-                example: 'review'
               issueType:
                 type: string
                 example: 'Inappropriate Review'
-              message:
+              additionalMessage:
                 type: string
-                example: 'Review "lorem ipsum" is not kid friendly'
+                example: 'Review is not kid friendly'
       responses:
         '201':
-          description: Create new ticket is successful.
+          description: Review flag has been recorded successfully.
         '401':
           description: Authentication is required to create ticket.
         '500':
-          description: There was an error creating the ticket.
+          description: There was an error flagging the review.
