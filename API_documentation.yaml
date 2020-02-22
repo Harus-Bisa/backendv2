@@ -324,7 +324,55 @@ paths:
                 example: ['University of Texas at Austin', 'Universitas Prasetya Mulya']
         '500':
           description: There was an error getting the schools matching the query.
-      
+  
+  /schools/popular:
+    get:
+      summary: Get top schools with the most reviewees.
+      tags:
+      - School
+      responses:
+        '200':
+          description: Get most popular schools is successful.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+                example: ['Universitas Prasetiya Mulya', 'Universitas Indonesia']
+        '500':
+          description: There was an error getting the most popular schools.
+          
+  /recents/reviews:
+    get:
+      summary: Get most recent reviews.
+      tags:
+      - Recent
+      responses:
+        '200':
+          description: Get most recent reviews is successful.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name: 
+                      type: string
+                      example: 'Timothy Bryan'
+                    school:
+                      type: string
+                      example: 'Universitas Indonesia'
+                    review:
+                      type: string
+                      example: 'Timothy adalah profesor paling baik.'
+                    overallRating:
+                      type: number
+                      example: 4.897
+        '500':
+          description: There was an error getting the most recent reviews.
+  
   /reviewees:
     post:
       summary: Create a new review for new reviewee.
@@ -579,7 +627,7 @@ paths:
         '500':
           description: There was an error adding helpfullness vote to the review.
           
-  /tickets/review/:
+  /tickets/reviews:
     post:
       summary: Create new review flag and send email to dosen-ku@gmail.com.
       tags: 
