@@ -10,5 +10,7 @@ module.exports = {
 	mailgunAPIKey: process.env.MAILGUN_API_KEY,
 	mailgunDomain: process.env.MAILGUN_DOMAIN,
 	host: process.env.HOST,
-	clientLoginUrl: process.env.CLIENT_LOGIN_URL
+	clientLoginUrl: process.env.CLIENT_LOGIN_URL,
+	sendgridAPIKey: process.env.SENDGRID_API_KEY,
+	pepipostAPIKey: process.env.PEPIPOST_API_KEY,
 };

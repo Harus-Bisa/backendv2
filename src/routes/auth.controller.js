@@ -11,8 +11,8 @@ const config = require('../config');
 const LOGIN_URL = config.clientLoginUrl;
 
 router.post('/signup', async (req, res) => {
-	const { userAlreadyExist, newUser } = await authService.signup(req.body);
 	try {
+		const { userAlreadyExist, newUser } = await authService.signup(req.body);
 		if (userAlreadyExist) {
 			res.statusMessage = 'Email already exists';
 			return res.status(409).end();
@@ -28,11 +28,11 @@ router.post('/signup', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-	const { authorized, credential, verified } = await authService.login(
-		req.body
-	);
-
 	try {
+		const { authorized, credential, verified } = await authService.login(
+			req.body
+		);
+		
 		if (authorized && verified) {
 			res.statusMessage = 'Login is successful';
 			return res.status(200).send(credential);

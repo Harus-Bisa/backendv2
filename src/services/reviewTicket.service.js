@@ -5,9 +5,11 @@ const config = require('../config');
 
 const UserService = require('./user.service');
 const RevieweeService = require('./reviewee.service');
+const EmailService = require('./email.service');
 
 const userService = UserService();
 const revieweeService = RevieweeService();
+const emailService = EmailService();
 
 function ReviewTicketService() {
 	return Object.freeze({
@@ -16,21 +18,11 @@ function ReviewTicketService() {
 
 	async function createTicket(ticketInformation) {
 		ticketInformation.createAt = Date.now();
-
-		const auth = {
-			auth: {
-				api_key: config.mailgunAPIKey,
-				domain: config.mailgunDomain,
-			},
-		};
-
 		const { user } = await userService.getUserById(ticketInformation.authorId);
 		const { review } = await revieweeService.getReviewById(
 			ticketInformation.revieweeId,
 			ticketInformation.reviewId
 		);
-
-		const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 		const message =
 			`Created at: ${Date(ticketInformation.createAt).toString()}\n` +
 			`Reviewee id: ${ticketInformation.revieweeId}\n` +
@@ -41,12 +33,9 @@ function ReviewTicketService() {
 			`Additional message: ${ticketInformation.additionalMessage}\n` +
 			`Review content: ${review.review}\n`;
 
-		nodemailerMailgun.sendMail({
-			from: 'noreply@dosen-ku.com',
-			to: 'dosenku.official@gmail.com',
-			subject: 'New Review Flag',
-			text: message,
-		});
+		const to = 'dosenku.official@gmail.com';
+		const subject = 'New Review Flag';
+		emailService.sendEmail(to, subject, message);
 
 		let newTicket = await ReviewTicket.create(ticketInformation);
 		return { newTicket };

@@ -1,12 +1,15 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const nodemailer = require('nodemailer');
-const mg = require('nodemailer-mailgun-transport');
+// const nodemailer = require('nodemailer');
+// const mg = require('nodemailer-mailgun-transport');
 
 const User = require('../models/User');
 const VerificationToken = require('../models/VerificationToken');
 const config = require('../config');
+const EmailService = require('./email.service');
+
+const emailService = EmailService();
 
 function AuthService() {
 	return Object.freeze({
@@ -18,29 +21,17 @@ function AuthService() {
 
 	async function sendVerificationEmail(userId, email) {
 		// send verification email
-		const auth = {
-			auth: {
-				api_key: config.mailgunAPIKey,
-				domain: config.mailgunDomain,
-			},
-		};
-
 		const token = await VerificationToken.create({
 			userId: userId,
 			token: crypto.randomBytes(16).toString('hex'),
 		});
-
-		const nodemailerMailgun = nodemailer.createTransport(mg(auth));
+		
 		const verificationLink =
 			config.host + '/verification/' + token.token;
 
-		nodemailerMailgun.sendMail({
-			from: 'noreply@harusbisa.net',
-			to: email,
-			subject: 'Harus Bisa Email Verification',
-			text:
-				'Please verify your email by clicking this link: ' + verificationLink,
-		});
+		const subject = 'Dosenku Email Verification';
+		const message = 'Please verify your email by clicking this link: ' + verificationLink;
+		emailService.sendEmail(email, subject, message);
 	}
 
 	async function signup(newUserData) {
