@@ -32,6 +32,7 @@ function AuthService() {
 		const subject = 'Dosenku Email Verification';
 		const message = 'Please verify your email by clicking this link: ' + verificationLink;
 		emailService.sendEmail(email, subject, message);
+		console.log(email, subject, message);
 	}
 
 	async function signup(newUserData) {
