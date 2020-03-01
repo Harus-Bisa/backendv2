@@ -136,6 +136,8 @@ function RevieweeService() {
 			}
 		}
 
+		schoolService.addVisitedCount(reviewee.school);
+
 		return { reviewee };
 	}
 
