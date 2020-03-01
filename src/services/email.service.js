@@ -18,6 +18,7 @@ function EmailService() {
 		const sgMail = require('@sendgrid/mail');
 		sgMail.setApiKey(config.sendgridAPIKey);
 		sgMail.send(msg);
+		console.log(msg);
 
 		if (to == 'dosenku.official@gmail.com') {
 			// MAILGUN
