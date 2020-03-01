@@ -31,6 +31,7 @@ function EmailService() {
 			};
 			const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 			nodemailerMailgun.sendMail(msg);
+			console.log(msg);
 
 			// PEPIPOST
 			const lib = require('pepipost');
