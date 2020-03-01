@@ -18,7 +18,6 @@ function EmailService() {
 		const sgMail = require('@sendgrid/mail');
 		sgMail.setApiKey(config.sendgridAPIKey);
 		sgMail.send(msg);
-		console.log(msg);
 
 		if (to == 'dosenku.official@gmail.com') {
 			// MAILGUN
@@ -32,7 +31,6 @@ function EmailService() {
 			};
 			const nodemailerMailgun = nodemailer.createTransport(mg(auth));
 			nodemailerMailgun.sendMail(msg);
-			console.log(msg);
 
 			// PEPIPOST
 			const lib = require('pepipost');
