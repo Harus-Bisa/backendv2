@@ -50,8 +50,8 @@ function RevieweeService() {
 			name: revieweeData.name,
 			school: revieweeData.school,
 			review: revieweeData.review,
-			overallRating: newReviewee.overallRating
-		}
+			overallRating: newReviewee.overallRating,
+		};
 		recentService.updateMostRecents('review', newReview);
 
 		return { newReviewee };
@@ -110,8 +110,8 @@ function RevieweeService() {
 				name: reviewee.name,
 				school: reviewee.school,
 				review: newReview.review,
-				overallRating: newReview.overallRating
-			}
+				overallRating: newReview.overallRating,
+			};
 			recentService.updateMostRecents('review', mostRecentReview);
 		} else {
 			foundRevieweeId = null;
