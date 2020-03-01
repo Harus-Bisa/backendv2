@@ -32,9 +32,6 @@ components:
         userId:
           type: string
           example: '5e01c0379a3aba19b056f844'
-        name:
-          type: string
-          example: 'John Doe'
         email:
           type: string
           example: 'john.doe@gmail.com'
@@ -175,13 +172,9 @@ paths:
             schema:
              type: object
              required:
-              - name
               - email
               - password
              properties:
-              name:
-                type: string
-                example: 'Wilson Burnawan'
               email:
                 type: string
                 format: email
