@@ -39,7 +39,9 @@ router.get('/', async (req, res) => {
 	try {
 		const { reviewees } = await revieweeService.getRevieweesByName(
 			req.query.name,
-			req.query.school
+			req.query.school,
+			req.query.index,
+			req.query.limit
 		);
 		res.statusMessage =
 			'Get list of reviewees matching the query is successful.';

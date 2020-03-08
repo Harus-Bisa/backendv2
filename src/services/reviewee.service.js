@@ -57,15 +57,18 @@ function RevieweeService() {
 		return { newReviewee };
 	}
 
-	async function getRevieweesByName(name, school) {
+	async function getRevieweesByName(name, school, index = 0, limit = 10) {
 		const schoolQuery = school ? `(?i)(^| )${school}.*` : '.*';
 		const nameQuery = name ? `(?i)(^| )${name}.*` : '.*';
+		// TODO make pagination faster
 		let reviewees = await Reviewee.find({
 			$and: [
 				{ name: { $regex: nameQuery } },
 				{ school: { $regex: schoolQuery } },
 			],
-		});
+		})
+			.skip(parseInt(index))
+			.limit(parseInt(limit));
 		reviewees = reviewees.map((reviewee) => {
 			let sumOverallRating = 0;
 			const numberOfReviews = reviewee.reviews.length;
@@ -267,7 +270,7 @@ function RevieweeService() {
 				formattedReviewee.reviews[i],
 				isAuthor,
 				userVote,
-				hasRepoted,
+				hasRepoted
 			);
 		}
 

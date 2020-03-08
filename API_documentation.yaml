@@ -463,7 +463,19 @@ paths:
           description: School of the reviewee.
           schema:
             type: string
-            example: University of Texas at Austin
+            example: University of Texas at Austin.
+        - in: query
+          name: index
+          description: Start index of match results.
+          schema:
+            type: number
+            example: 10
+        - in: query
+          name: limit
+          description: Number of matched results returned.
+          schema:
+            type: number
+            example: 15
       responses:
         '200':
           description: Get list of reviewees matching the query is successful.
