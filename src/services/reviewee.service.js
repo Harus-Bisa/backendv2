@@ -267,7 +267,6 @@ function RevieweeService() {
 				}
 			}
 			
-			console.log(hasReported);
 			formattedReviewee.reviews[i] = formatReviewObject(
 				formattedReviewee.reviews[i],
 				isAuthor,
