@@ -270,7 +270,7 @@ function RevieweeService() {
 				formattedReviewee.reviews[i],
 				isAuthor,
 				userVote,
-				hasRepoted
+				hasReported
 			);
 		}
 
