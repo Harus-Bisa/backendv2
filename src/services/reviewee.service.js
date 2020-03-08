@@ -258,7 +258,7 @@ function RevieweeService() {
 							formattedReviewee.reviews[i]._id.equals(review.reviewId)
 					);
 
-					hasRepoted = user.reportedReviews.some(
+					hasReported = user.reportedReviews.some(
 						(review) =>
 							revieweeObject._id.equals(review.revieweeId) &&
 							formattedReviewee.reviews[i]._id.equals(review.reviewId)
@@ -319,7 +319,7 @@ function RevieweeService() {
 		formattedReview.reviewId = formattedReview._id;
 		formattedReview.isAuthor = isAuthor;
 		formattedReview.userVote = userVote;
-		formattedReview.hasReported = hasRepoted;
+		formattedReview.hasReported = hasReported;
 		delete formattedReview._id;
 		return formattedReview;
 	}
