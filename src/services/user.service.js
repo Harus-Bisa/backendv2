@@ -7,6 +7,7 @@ function UserService() {
 		getUserById,
 		getUserByEmail,
 		verifyUser,
+		addReportedReview,
 		// getOutgoingReviews,
 		// getHelpfulnessVotes,
 		// getFollowing,
@@ -49,6 +50,20 @@ function UserService() {
 			{ new: true }
 		);
 		return { outgoingReview: review };
+	}
+
+	async function addReportedReview(userId, revieweeId, reviewId) {
+		const review = {
+			revieweeId,
+			reviewId,
+		};
+		console.log(userId);
+		const user = await User.findByIdAndUpdate(
+			userId,
+			{ $push: { reportedReviews: review } },
+			{ new: true }
+		);
+		console.log(user);
 	}
 
 	async function updateHelpfulnessVote(userId, revieweeId, reviewId, vote) {

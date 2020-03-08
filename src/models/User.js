@@ -18,6 +18,13 @@ const userSchema = new mongoose.Schema({
 			_id: false,
 		},
 	],
+	reportedReviews: [
+		{
+			revieweeId: mongoose.Schema.Types.ObjectId,
+			reviewId: mongoose.Schema.Types.ObjectId,
+			_id: false,
+		}
+	],
 	following: [mongoose.Schema.Types.ObjectId],
 	isVerified: { type: Boolean, default: false },
 });

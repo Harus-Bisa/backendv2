@@ -17,6 +17,12 @@ function ReviewTicketService() {
 	});
 
 	async function createTicket(ticketInformation) {
+		const userId = ticketInformation.authorId;
+		const reviewId = ticketInformation.reviewId;
+		const revieweeId = ticketInformation.revieweeId;
+
+		userService.addReportedReview(userId, revieweeId, reviewId);
+
 		ticketInformation.createAt = Date.now();
 		const { user } = await userService.getUserById(ticketInformation.authorId);
 		const { review } = await revieweeService.getReviewById(

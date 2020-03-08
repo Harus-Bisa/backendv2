@@ -108,6 +108,9 @@ components:
         isAuthor:
           type: boolean
           example: true
+        hasReported:
+          type: boolean
+          example: false
         tags:
           type: array
           items:

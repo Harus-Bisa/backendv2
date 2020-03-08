@@ -254,13 +254,20 @@ function RevieweeService() {
 							revieweeObject._id.equals(review.revieweeId) &&
 							formattedReviewee.reviews[i]._id.equals(review.reviewId)
 					);
+
+					hasRepoted = user.reportedReviews.some(
+						(review) =>
+							revieweeObject._id.equals(review.revieweeId) &&
+							formattedReviewee.reviews[i]._id.equals(review.reviewId)
+					);
 				}
 			}
 
 			formattedReviewee.reviews[i] = formatReviewObject(
 				formattedReviewee.reviews[i],
 				isAuthor,
-				userVote
+				userVote,
+				hasRepoted,
 			);
 		}
 
@@ -299,7 +306,8 @@ function RevieweeService() {
 	function formatReviewObject(
 		reviewObject,
 		isAuthor = false,
-		userVote = undefined
+		userVote = undefined,
+		hasReported = false
 	) {
 		if (!reviewObject) {
 			return null;
@@ -308,6 +316,7 @@ function RevieweeService() {
 		formattedReview.reviewId = formattedReview._id;
 		formattedReview.isAuthor = isAuthor;
 		formattedReview.userVote = userVote;
+		formattedReview.hasReported = hasRepoted;
 		delete formattedReview._id;
 		return formattedReview;
 	}

@@ -5,6 +5,7 @@ const authentication = require('../middlewares/auth.middleware');
 
 const router = express.Router();
 const reviewTicketService = ReviewTicketService();
+const userService = 
 
 router.post('/reviews/', authentication, async (req, res) => {
 	if (!req.authenticated) {
@@ -13,6 +14,7 @@ router.post('/reviews/', authentication, async (req, res) => {
 	}
 
 	try {
+		// TODO security issue using provided userId instead of token
 		const { newTicket } = await reviewTicketService.createTicket(
 			req.body
 		);
