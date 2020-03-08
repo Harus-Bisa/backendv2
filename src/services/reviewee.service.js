@@ -240,6 +240,7 @@ function RevieweeService() {
 
 			let isAuthor = false;
 			let userVote;
+			let hasReported = false;
 
 			if (userId) {
 				const { user } = await userService.getUserById(userId);
@@ -265,7 +266,8 @@ function RevieweeService() {
 					);
 				}
 			}
-
+			
+			console.log(hasReported);
 			formattedReviewee.reviews[i] = formatReviewObject(
 				formattedReviewee.reviews[i],
 				isAuthor,
