@@ -10,4 +10,8 @@ const verificationTokenSchema = new mongoose.Schema({
 	createdAt: { type: Date, required: true, default: Date.now, expires: 43200 }, // auto delete in 12 hours
 });
 
+verificationTokenSchema.statics.findByToken = function(token) {
+	return this.findOne({token: token})
+}
+
 module.exports = mongoose.model('VerificationToken', verificationTokenSchema);

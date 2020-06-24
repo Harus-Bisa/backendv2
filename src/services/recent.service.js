@@ -1,12 +1,12 @@
 const Recent = require('../models/Recent');
 
-function RecentService() {
-	return Object.freeze({
-		updateMostRecents,
-		getMostRecentReviews,
-	});
+class RecentService {
+	// return Object.freeze({
+	// 	updateMostRecents,
+	// 	getMostRecentReviews,
+	// });
 
-	async function updateMostRecents(type, newEntry) {
+	async updateMostRecents(type, newEntry) {
 		const max_recents = 10;
 		const recent = await Recent.findOneAndUpdate(
 			{ type: type },
@@ -23,7 +23,7 @@ function RecentService() {
 		return;
 	}
 
-	async function getMostRecentReviews() {
+	async getMostRecentReviews() {
 		let recent = await Recent.findOne({ type: 'review' });
 		let mostRecentReviews = recent.mostRecents;
 

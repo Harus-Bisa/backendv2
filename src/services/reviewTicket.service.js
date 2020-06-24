@@ -7,16 +7,16 @@ const UserService = require('./user.service');
 const RevieweeService = require('./reviewee.service');
 const EmailService = require('./email.service');
 
-const userService = UserService();
-const revieweeService = RevieweeService();
-const emailService = EmailService();
+const userService = new UserService();
+const revieweeService = new RevieweeService();
+// const emailService = EmailService();
 
-function ReviewTicketService() {
-	return Object.freeze({
-		createTicket,
-	});
+class ReviewTicketService {
+	// return Object.freeze({
+	// 	createTicket,
+	// });
 
-	async function createTicket(ticketInformation) {
+	async createTicket(ticketInformation) {
 		const userId = ticketInformation.authorId;
 		const reviewId = ticketInformation.reviewId;
 		const revieweeId = ticketInformation.revieweeId;

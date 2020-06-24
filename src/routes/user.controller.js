@@ -3,7 +3,7 @@ const UserService = require('../services/user.service');
 const authentication = require('../middlewares/auth.middleware');
 
 const router = express.Router();
-const userService = UserService();
+const userService = new UserService();
 
 router.get('/:userId', authentication, async (req, res) => {
   if (!req.authenticated) {

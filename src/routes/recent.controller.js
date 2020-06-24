@@ -3,7 +3,7 @@ const express = require('express');
 const RecentService = require('../services/recent.service');
 
 const router = express.Router();
-const recentService = RecentService();
+const recentService = new RecentService();
 
 router.get('/reviews', async (req, res) => {
 	try {

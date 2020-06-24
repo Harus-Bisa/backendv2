@@ -1,14 +1,14 @@
 const School = require('../models/School');
 
-function SchoolService() {
-	return Object.freeze({
-		getSchoolsByName,
-		addRevieweeCount,
-		addVisitedCount,
-		getMostPopular,
-	});
+class SchoolService {
+	// return Object.freeze({
+	// 	getSchoolsByName,
+	// 	addRevieweeCount,
+	// 	addVisitedCount,
+	// 	getMostPopular,
+	// });
 
-	async function getSchoolsByName(school) {
+	async getSchoolsByName(school) {
 		const schoolQuery = school ? `(?i)(^| )${school}.*` : '.*';
 		let schools = await School.find({ name: { $regex: schoolQuery } });
 		schools = schools.map((school) => {
@@ -18,7 +18,7 @@ function SchoolService() {
 		return { schools };
 	}
 
-	async function addRevieweeCount(schoolName) {
+	async addRevieweeCount(schoolName) {
 		// create if not exist (use upsert)
 		let newSchool = await School.findOneAndUpdate(
 			{ name: schoolName },
@@ -31,7 +31,7 @@ function SchoolService() {
 		return { newSchool };
 	}
 
-	async function addVisitedCount(schoolName) {
+	async addVisitedCount(schoolName) {
 		// create if not exist (use upsert)
 		let newSchool = await School.findOneAndUpdate(
 			{ name: schoolName },
@@ -44,7 +44,7 @@ function SchoolService() {
 		return { newSchool };
 	}
 
-	async function getMostPopular() {
+	async getMostPopular() {
 		// school that is most visited is the most popular
 		let schools = await School.find()
 			.sort({ visitedCount: -1 })

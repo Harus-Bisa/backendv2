@@ -3,7 +3,7 @@ const express = require('express');
 const SchoolService = require('../services/school.service');
 
 const router = express.Router();
-const schoolService = SchoolService();
+const schoolService = new SchoolService();
 
 router.get('/', async (req, res) => {
 	try {

@@ -3,21 +3,21 @@ const UserService = require('./user.service');
 const SchoolService = require('./school.service');
 const RecentService = require('./recent.service');
 
-const userService = UserService();
-const schoolService = SchoolService();
-const recentService = RecentService();
+const userService = new UserService();
+const schoolService = new SchoolService();
+const recentService = new RecentService();
 
-function RevieweeService() {
-	return Object.freeze({
-		createRevieweeWithReview,
-		getRevieweesByName,
-		createReview,
-		getRevieweeById,
-		updateHelpfulnessVote,
-		getReviewById,
-	});
+class RevieweeService {
+	// return Object.freeze({
+	// 	createRevieweeWithReview,
+	// 	getRevieweesByName,
+	// 	createReview,
+	// 	getRevieweeById,
+	// 	updateHelpfulnessVote,
+	// 	getReviewById,
+	// });
 
-	async function createRevieweeWithReview(revieweeData) {
+	async createRevieweeWithReview(revieweeData) {
 		const formatedData = {
 			name: revieweeData.name,
 			school: revieweeData.school,
@@ -57,7 +57,7 @@ function RevieweeService() {
 		return { newReviewee };
 	}
 
-	async function getRevieweesByName(name, school, index = 0, limit = 10) {
+	async getRevieweesByName(name, school, index = 0, limit = 10) {
 		const schoolQuery = school ? `(?i)(^| )${school}.*` : '.*';
 		const nameQuery = name ? `(?i)(^| )${name}.*` : '.*';
 		// TODO make pagination faster
@@ -90,7 +90,7 @@ function RevieweeService() {
 		return { reviewees };
 	}
 
-	async function createReview(revieweeId, reviewData) {
+	async createReview(revieweeId, reviewData) {
 		let newReview = {
 			...reviewData,
 			createdAt: Date.now(),
@@ -124,7 +124,7 @@ function RevieweeService() {
 		return { revieweeId: foundRevieweeId, newReview };
 	}
 
-	async function getRevieweeById(
+	async getRevieweeById(
 		revieweeId,
 		authenticated = true,
 		userId = undefined
@@ -144,7 +144,7 @@ function RevieweeService() {
 		return { reviewee };
 	}
 
-	async function updateHelpfulnessVote(
+	async updateHelpfulnessVote(
 		cancelVote,
 		switchVote,
 		revieweeId,
@@ -204,7 +204,7 @@ function RevieweeService() {
 		return { votedReview };
 	}
 
-	function getReviewByIdFromReviewee(reviewee, reviewId) {
+	getReviewByIdFromReviewee(reviewee, reviewId) {
 		let review = null;
 		if (reviewee) {
 			review = reviewee.reviews.find((review) => review.reviewId == reviewId);
@@ -213,14 +213,14 @@ function RevieweeService() {
 		return review;
 	}
 
-	async function getReviewById(revieweeId, reviewId) {
+	async getReviewById(revieweeId, reviewId) {
 		const { reviewee } = await getRevieweeById(revieweeId);
 		let review = null;
 		review = getReviewByIdFromReviewee(reviewee, reviewId);
 		return { review };
 	}
 
-	async function formatRevieweeObject(revieweeObject, userId = undefined) {
+	async formatRevieweeObject(revieweeObject, userId = undefined) {
 		if (!revieweeObject) {
 			return null;
 		}
@@ -307,7 +307,7 @@ function RevieweeService() {
 		return formattedReviewee;
 	}
 
-	function formatReviewObject(
+	formatReviewObject(
 		reviewObject,
 		isAuthor = false,
 		userVote = undefined,
@@ -325,7 +325,7 @@ function RevieweeService() {
 		return formattedReview;
 	}
 
-	function limitReviewCount(reviews, countLimit) {
+	limitReviewCount(reviews, countLimit) {
 		let limitedReviews = [];
 		countLimit = reviews.length < countLimit ? reviews.length : countLimit;
 		for (let i = 0; i < countLimit; i += 1) {
@@ -334,7 +334,7 @@ function RevieweeService() {
 		return limitedReviews;
 	}
 
-	function sortReviewsByAuthor(reviews) {
+	sortReviewsByAuthor(reviews) {
 		reviews = reviews.reverse();
 
 		let isAuthorReviews = [];

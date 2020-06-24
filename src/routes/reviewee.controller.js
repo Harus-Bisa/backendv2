@@ -5,8 +5,8 @@ const UserService = require('../services/user.service');
 const authentication = require('../middlewares/auth.middleware');
 
 const router = express.Router();
-const revieweeService = RevieweeService();
-const userService = UserService();
+const revieweeService = new RevieweeService();
+const userService = new UserService();
 
 router.post('/', authentication, async (req, res) => {
 	if (!req.authenticated) {

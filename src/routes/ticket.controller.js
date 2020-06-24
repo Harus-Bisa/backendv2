@@ -4,8 +4,7 @@ const ReviewTicketService = require('../services/reviewTicket.service');
 const authentication = require('../middlewares/auth.middleware');
 
 const router = express.Router();
-const reviewTicketService = ReviewTicketService();
-const userService = 
+const reviewTicketService = new ReviewTicketService();
 
 router.post('/reviews/', authentication, async (req, res) => {
 	if (!req.authenticated) {
