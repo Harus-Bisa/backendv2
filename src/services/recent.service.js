@@ -1,34 +1,20 @@
 const Recent = require('../models/Recent');
 
 class RecentService {
-	// return Object.freeze({
-	// 	updateMostRecents,
-	// 	getMostRecentReviews,
-	// });
+  async updateMostRecents(type, newEntry) {
+    const MAX_RECENT_REVIEWS = 10;
 
-	async updateMostRecents(type, newEntry) {
-		const max_recents = 10;
-		const recent = await Recent.findOneAndUpdate(
-			{ type: type },
-			{ $push: { mostRecents: newEntry } },
-			{ upsert: true, useFindAndModify: false }
-		);
-		if (recent.mostRecents.length >= max_recents) {
-			await Recent.findOneAndUpdate(
-				{ type: type },
-				{ $pop: { mostRecents: -1 } },
-				{ upsert: true, useFindAndModify: false }
-			);
-		}
-		return;
-	}
+    const reviewsCount = await Recent.pushMostRecent(type, newEntry);
 
-	async getMostRecentReviews() {
-		let recent = await Recent.findOne({ type: 'review' });
-		let mostRecentReviews = recent.mostRecents;
+    if (type == 'review' && reviewsCount > MAX_RECENT_REVIEWS) {
+      Recent.pullMostRecent(type, newEntry);
+    }
+  }
 
-		return { mostRecentReviews };
-	}
+  async getMostRecentReviews() {
+    let mostRecentReviews = await Recent.getMostRecentReviews();
+    return { mostRecentReviews };
+  }
 }
 
 module.exports = RecentService;
