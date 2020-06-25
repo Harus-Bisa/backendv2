@@ -9,7 +9,7 @@ const EmailService = require('./email.service');
 
 const userService = new UserService();
 const revieweeService = new RevieweeService();
-// const emailService = EmailService();
+const emailService = new EmailService();
 
 class ReviewTicketService {
 	// return Object.freeze({
@@ -23,14 +23,16 @@ class ReviewTicketService {
 
 		userService.addReportedReview(userId, revieweeId, reviewId);
 
-		ticketInformation.createAt = Date.now();
 		const { user } = await userService.getUserById(ticketInformation.authorId);
 		const { review } = await revieweeService.getReviewById(
 			ticketInformation.revieweeId,
 			ticketInformation.reviewId
 		);
+		ticketInformation.createdAt = Date.now();
+		ticketInformation.authorEmail = user.email;
+
 		const message =
-			`Created at: ${Date(ticketInformation.createAt).toString()}\n` +
+			`Created at: ${Date(ticketInformation.createdAt).toString()}\n` +
 			`Reviewee id: ${ticketInformation.revieweeId}\n` +
 			`Review id: ${ticketInformation.reviewId}\n` +
 			`Author id: ${ticketInformation.authorId}\n` +

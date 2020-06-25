@@ -1,10 +1,6 @@
 const config = require('../config');
 
 class EmailService {
-	// return Object.freeze({
-	// 	sendEmail,
-	// });
-
 	async sendEmail(to, subject, message) {
 		const from = 'noreply@dosen-ku.com';
 		const msg = {

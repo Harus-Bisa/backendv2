@@ -43,7 +43,7 @@ class RevieweeService {
 		schoolService.addRevieweeCount(revieweeData.school);
 
 		let newReviewee = await Reviewee.create(formatedData);
-		newReviewee = await formatRevieweeObject(newReviewee);
+		newReviewee = await this.formatRevieweeObject(newReviewee);
 		newReviewee.reviews[0].isAuthor = true;
 
 		const newReview = {
@@ -107,7 +107,7 @@ class RevieweeService {
 		let foundRevieweeId;
 		if (reviewee) {
 			foundRevieweeId = reviewee._id;
-			newReview = formatReviewObject(reviewee.reviews.pop(), true);
+			newReview = this.formatReviewObject(reviewee.reviews.pop(), true);
 
 			const mostRecentReview = {
 				name: reviewee.name,
@@ -132,7 +132,7 @@ class RevieweeService {
 		const REVIEW_LIMIT = 3;
 		let reviewee = await Reviewee.findById(revieweeId);
 		if (reviewee) {
-			reviewee = await formatRevieweeObject(reviewee, userId);
+			reviewee = await this.formatRevieweeObject(reviewee, userId);
 			if (!authenticated) {
 				// limit returned review
 				reviewee.reviews = limitReviewCount(reviewee.reviews, REVIEW_LIMIT);
@@ -196,8 +196,8 @@ class RevieweeService {
 		}
 
 		let votedReview = null;
-		votedReview = getReviewByIdFromReviewee(
-			await formatRevieweeObject(reviewee, userId),
+		votedReview = this.getReviewByIdFromReviewee(
+			await this.formatRevieweeObject(reviewee, userId),
 			reviewId
 		);
 
@@ -214,9 +214,9 @@ class RevieweeService {
 	}
 
 	async getReviewById(revieweeId, reviewId) {
-		const { reviewee } = await getRevieweeById(revieweeId);
+		const { reviewee } = await this.getRevieweeById(revieweeId);
 		let review = null;
-		review = getReviewByIdFromReviewee(reviewee, reviewId);
+		review = this.getReviewByIdFromReviewee(reviewee, reviewId);
 		return { review };
 	}
 
@@ -267,7 +267,7 @@ class RevieweeService {
 				}
 			}
 			
-			formattedReviewee.reviews[i] = formatReviewObject(
+			formattedReviewee.reviews[i] = this.formatReviewObject(
 				formattedReviewee.reviews[i],
 				isAuthor,
 				userVote,
@@ -279,7 +279,7 @@ class RevieweeService {
 		formattedReviewee.revieweeId = formattedReviewee._id;
 		formattedReviewee.numberOfReviews = formattedReviewee.reviews.length;
 		// formattedReviewee.reviews = formattedReviewee.reviews.reverse();
-		formattedReviewee.reviews = sortReviewsByAuthor(formattedReviewee.reviews);
+		formattedReviewee.reviews = this.sortReviewsByAuthor(formattedReviewee.reviews);
 
 		if (revieweeObject.reviews.length > 0) {
 			formattedReviewee.overallRating =
