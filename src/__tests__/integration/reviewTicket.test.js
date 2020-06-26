@@ -2,8 +2,8 @@ const request = require('supertest');
 const app = require('../../app');
 const sgMail = require('@sendgrid/mail');
 const mongoose = require('mongoose');
+const User = require('../../models/User');
 
-jest.mock('../../db');
 jest.mock('@sendgrid/mail');
 
 const userEmail = mongoose.Types.ObjectId() + '@gmail.com';
@@ -19,6 +19,10 @@ const userInfo = {
   email: userEmail,
   password: userPassword,
 };
+
+const reviewContent = 'random review';
+const additionalMessage = 'random message';
+const issueType = 'random issue type';
 
 var mailApiCalled = 0;
 
@@ -51,7 +55,7 @@ describe('Review ticket endpoints', () => {
         .split('/')
         .slice(-1)[0];
       done();
-    }, 100);
+    }, 500);
   });
 
   it('verify user should be successful', async (done) => {
@@ -81,7 +85,7 @@ describe('Review ticket endpoints', () => {
   it('create new review for new reviewee should be successful', async (done) => {
     const revieweeData = {
       name: 'foo',
-      review: 'bar',
+      review: reviewContent,
     };
 
     const res = await request(app)
@@ -97,12 +101,12 @@ describe('Review ticket endpoints', () => {
   });
 
   it('Submitting review ticket should be successful', async (done) => {
-    const additionalMessage = 'random message';
     const ticketInfo = {
       revieweeId,
       reviewId,
       authorId: userId,
       additionalMessage,
+      issueType,
     };
 
     const res = await request(app)
@@ -116,7 +120,12 @@ describe('Review ticket endpoints', () => {
     expect(res.body.authorId).toBe(userId);
     expect(res.body.authorEmail).toBe(userEmail);
     expect(res.body.additionalMessage).toEqual(additionalMessage);
+    expect(res.body.issueType).toBe(issueType);
+    expect(res.body.reviewContent).toBe(reviewContent);
+    done();
+  });
 
+  it('Sending email notification should be successful', async (done) => {
     mailApiCalled += 1;
     expect(sgMail.send).toHaveBeenCalledTimes(mailApiCalled);
 
@@ -126,9 +135,19 @@ describe('Review ticket endpoints', () => {
     expect(splitted_message[2].split(': ')[1]).toBe(reviewId);
     expect(splitted_message[3].split(': ')[1]).toBe(userId);
     expect(splitted_message[4].split(': ')[1]).toBe(userEmail);
+    expect(splitted_message[5].split(': ')[1]).toBe(issueType);
     expect(splitted_message[6].split(': ')[1]).toBe(additionalMessage);
-    
+    expect(splitted_message[7].split(': ')[1]).toBe(reviewContent);
     done();
   });
 
+  it('User database should be updated', async (done) => {
+    const user = await User.findOne({email: userEmail});
+    const userReviews = user.reportedReviews;
+    const userLastReview = userReviews[userReviews.length - 1];
+    
+    expect(userLastReview.revieweeId.toString()).toEqual(revieweeId);
+    expect(userLastReview.reviewId.toString()).toEqual(reviewId);
+    done();
+  });
 });

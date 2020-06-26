@@ -4,28 +4,48 @@ const bodyParser = require('body-parser');
 
 const db = require('./db');
 
-const app = express();
 
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-app.use(cors());
+class App {
+  constructor() {
+    this.express = express();
 
-const revieweeController = require('./routes/reviewee.controller');
-app.use('/reviewees', revieweeController);
+    this.database();
+    this.middlewares();
+    this.routes();
+  }
 
-const schoolController = require('./routes/school.controller');
-app.use('/schools', schoolController);
+  database() {
+    db.connect();
+  }
 
-const authController = require('./routes/auth.controller');
-app.use('/', authController);
+  middlewares() {
+    this.express.use(bodyParser.urlencoded({ extended: true }));
+    this.express.use(bodyParser.json());
+    this.express.use(cors());
+  }
 
-const userController = require('./routes/user.controller');
-app.use('/users', userController);
+  routes() {
+    const revieweeController = require('./routes/reviewee.controller');
+    this.express.use('/reviewees', revieweeController);
 
-const ticketController = require('./routes/ticket.controller');
-app.use('/tickets', ticketController);
+    const schoolController = require('./routes/school.controller');
+    this.express.use('/schools', schoolController);
 
-const recentController = require('./routes/recent.controller');
-app.use('/recents', recentController);
+    const authController = require('./routes/auth.controller');
+    this.express.use('/', authController);
 
-module.exports = app;
+    const userController = require('./routes/user.controller');
+    this.express.use('/users', userController);
+
+    const ticketController = require('./routes/ticket.controller');
+    this.express.use('/tickets', ticketController);
+
+    const recentController = require('./routes/recent.controller');
+    this.express.use('/recents', recentController);
+  }
+}
+
+module.exports = new App().express;
+
+
+

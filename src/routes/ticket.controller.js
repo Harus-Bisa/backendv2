@@ -13,9 +13,18 @@ router.post('/reviews/', authentication, async (req, res) => {
 	}
 
 	try {
+		const authorId = req.body.authorId;
+		const revieweeId = req.body.revieweeId;
+		const reviewId = req.body.reviewId;
+		const issueType = req.body.issueType;
+		const additionalMessage = req.body.additionalMessage;
 		// TODO security issue using provided userId instead of token
 		const { newTicket } = await reviewTicketService.createTicket(
-			req.body
+			authorId,
+			revieweeId,
+			reviewId,
+			issueType,
+			additionalMessage
 		);
 
 		res.statusMessage = 'Review flag has been recorded successfully.';

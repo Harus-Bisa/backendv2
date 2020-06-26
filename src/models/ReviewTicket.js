@@ -8,7 +8,29 @@ const reviewTicketSchema = new mongoose.Schema({
   authorEmail: String,
   issueType: String,
   additionalMessage: String,
-  reviewContent: String
+  reviewContent: String,
 });
+
+reviewTicketSchema.statics.createTicket = function(
+  authorId,
+  authorEmail,
+  revieweeId,
+  reviewId,
+  createdAt,
+  issueType,
+  additionalMessage,
+  reviewContent
+) {
+  return this.create({
+    authorId,
+    authorEmail,
+    revieweeId,
+    reviewId,
+    createdAt,
+    issueType,
+    additionalMessage,
+    reviewContent,
+  });
+};
 
 module.exports = mongoose.model('ReviewTicket', reviewTicketSchema);

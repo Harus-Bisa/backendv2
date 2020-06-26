@@ -3,7 +3,7 @@ const app = require('../../app');
 const sgMail = require('@sendgrid/mail');
 const mongoose = require('mongoose');
 
-jest.mock('../../db');
+// jest.mock('../../db');
 jest.mock('@sendgrid/mail');
 
 const userEmail = mongoose.Types.ObjectId() + '@gmail.com';
@@ -37,7 +37,7 @@ describe('Auth endpoints', () => {
         .split('/')
         .slice(-1)[0];
       done();
-    }, 100);
+    }, 300);
   });
 
   it('signup with duplicate email should fail', async (done) => {
@@ -135,6 +135,6 @@ describe('Auth endpoints', () => {
     }, 100);
 
     expect(res.statusCode).toEqual(200);
-    done();
+    
   });
 });

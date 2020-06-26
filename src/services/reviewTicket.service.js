@@ -12,42 +12,50 @@ const revieweeService = new RevieweeService();
 const emailService = new EmailService();
 
 class ReviewTicketService {
-	// return Object.freeze({
-	// 	createTicket,
-	// });
+  async createTicket(
+    authorId,
+    revieweeId,
+    reviewId,
+    issueType,
+    additionalMessage
+  ) {
+    userService.addReportedReview(authorId, revieweeId, reviewId);
 
-	async createTicket(ticketInformation) {
-		const userId = ticketInformation.authorId;
-		const reviewId = ticketInformation.reviewId;
-		const revieweeId = ticketInformation.revieweeId;
+    const { user } = await userService.getUserById(authorId);
+    const { review } = await revieweeService.getReviewById(
+      revieweeId,
+      reviewId
+    );
+    const createdAt = Date.now();
+		const authorEmail = user.email;
+		const reviewContent = review.review;
 
-		userService.addReportedReview(userId, revieweeId, reviewId);
+    const message =
+      `Created at: ${Date(createdAt).toString()}\n` +
+      `Reviewee id: ${revieweeId}\n` +
+      `Review id: ${reviewId}\n` +
+      `Author id: ${authorId}\n` +
+      `Author email: ${user.email}\n` +
+      `Issue type: ${issueType}\n` +
+      `Additional message: ${additionalMessage}\n` +
+      `Review content: ${reviewContent}\n`;
 
-		const { user } = await userService.getUserById(ticketInformation.authorId);
-		const { review } = await revieweeService.getReviewById(
-			ticketInformation.revieweeId,
-			ticketInformation.reviewId
-		);
-		ticketInformation.createdAt = Date.now();
-		ticketInformation.authorEmail = user.email;
+    const to = 'dosenku.official@gmail.com';
+    const subject = 'New Review Flag';
+    emailService.sendEmail(to, subject, message);
 
-		const message =
-			`Created at: ${Date(ticketInformation.createdAt).toString()}\n` +
-			`Reviewee id: ${ticketInformation.revieweeId}\n` +
-			`Review id: ${ticketInformation.reviewId}\n` +
-			`Author id: ${ticketInformation.authorId}\n` +
-			`Author email: ${user.email}\n` +
-			`Issue type: ${ticketInformation.issueType}\n` +
-			`Additional message: ${ticketInformation.additionalMessage}\n` +
-			`Review content: ${review.review}\n`;
-
-		const to = 'dosenku.official@gmail.com';
-		const subject = 'New Review Flag';
-		emailService.sendEmail(to, subject, message);
-
-		let newTicket = await ReviewTicket.create(ticketInformation);
-		return { newTicket };
-	}
+    let newTicket = await ReviewTicket.createTicket(
+      authorId,
+      authorEmail,
+      revieweeId,
+      reviewId,
+      createdAt,
+      issueType,
+      additionalMessage,
+      reviewContent
+    );
+    return { newTicket };
+  }
 }
 
 module.exports = ReviewTicketService;

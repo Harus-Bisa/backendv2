@@ -7,6 +7,7 @@ const recentSchema = new mongoose.Schema({
 
 recentSchema.statics.getMostRecentReviews = async function() {
   const recentObject = await this.findOne({ recentType: 'review' });
+
   if (!recentObject) {
     return [];
   } else {
@@ -16,9 +17,9 @@ recentSchema.statics.getMostRecentReviews = async function() {
 
 recentSchema.statics.pushMostRecent = async function(type, review) {
   const recent = await this.findOneAndUpdate(
-    { recentType: type },
+    { recentType: 'review' },
     { $push: { mostRecents: review } },
-    { upsert: true, useFindAndModify: false, new: true }
+    { upsert: true, new: true }
   );
 
   return recent.mostRecents.length;
@@ -28,7 +29,7 @@ recentSchema.statics.pullMostRecent = function(type, review) {
   this.findOneAndUpdate(
     { recentType: type },
     { $pop: { mostRecents: -1 } },
-    { upsert: true, useFindAndModify: false, new: true }
+    { upsert: true, new: true }
   ).exec();
 };
 
