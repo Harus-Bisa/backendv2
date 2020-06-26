@@ -11,9 +11,10 @@ router.get('/:userId', authentication, async (req, res) => {
 		return res.status(401).end();
 	}
 	try {
-		const { user } = await userService.getUserById(req.params.userId);
+		const requestedUserId = req.params.userId;
+		const { user } = await userService.getUserById(requestedUserId);
 		if (user) {
-      if (user.userId == req.params.userId) {
+      if (req.params.userId == req.userId) {
         res.statusMessage = 'Get user is successful.';
 			  return res.status(200).send(user);
       } else {
