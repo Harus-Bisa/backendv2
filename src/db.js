@@ -12,9 +12,10 @@ const mongoose = require('mongoose');
 
 const connect = async () => {
   if (mongoose.connection.readyState === 0) {
+    const connectUrl = process.env.NODE_ENV === 'test' ? global.__DB_URL__ : config.mongodbUrl
     await mongoose
       .connect(
-        process.env.NODE_ENV === 'test' ? global.__DB_URL__ : config.mongodbUrl,
+        connectUrl,
         {
           useNewUrlParser: true,
           useCreateIndex: true,
@@ -23,7 +24,7 @@ const connect = async () => {
         }
       )
       .then(() => {
-        // console.log('MongoDB is connected to: ', global.__DB_URL__);
+        console.log('MongoDB is connected to: ', connectUrl);
       })
       .catch((err) => console.log('MongoDB connection error: ' + err.message));
   }
