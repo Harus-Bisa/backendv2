@@ -24,8 +24,8 @@ const userInfo = {
 const secondUserEmail = mongoose.Types.ObjectId();
 const secondUserInfo = {
   email: secondUserEmail,
-  password: 'foo'
-}
+  password: 'foo',
+};
 var secondUserAuthenticationToken;
 
 describe('User endpoints', () => {

@@ -25,12 +25,12 @@ recentSchema.statics.pushMostRecent = async function(type, review) {
   return recent.mostRecents.length;
 };
 
-recentSchema.statics.pullMostRecent = function(type, review) {
-  this.findOneAndUpdate(
-    { recentType: type },
-    { $pop: { mostRecents: -1 } },
-    { upsert: true, new: true }
-  ).exec();
-};
+// recentSchema.statics.pullMostRecent = function(type, review) {
+//   this.findOneAndUpdate(
+//     { recentType: type },
+//     { $pop: { mostRecents: -1 } },
+//     { upsert: true, new: true }
+//   ).exec();
+// };
 
 module.exports = mongoose.model('Recent', recentSchema);
