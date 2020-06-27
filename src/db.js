@@ -1,15 +1,6 @@
 const config = require('./config');
 const mongoose = require('mongoose');
 
-// mongoose
-//   .connect(config.mongodbUrl, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true,
-//     useCreateIndex: true,
-//   })
-//   .then(() => console.log('MongoDB is connected'))
-//   .catch((err) => console.log('MongoDB connection error: ' + err.message));
-
 const connect = async () => {
   if (mongoose.connection.readyState === 0) {
     const connectUrl = process.env.NODE_ENV === 'test' ? global.__DB_URL__ : config.mongodbUrl
