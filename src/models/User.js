@@ -37,4 +37,20 @@ userSchema.statics.findByEmail = function(userEmail) {
   return this.findOne({ email: userEmail });
 };
 
+userSchema.statics.addOutgoingReview = function(userId, review) {
+  return this.findByIdAndUpdate(
+    userId,
+    { $push: { outgoingReviews: review } },
+    { new: true }
+  );
+};
+
+userSchema.statics.verifyUser = function(userId) {
+  return this.findByIdAndUpdate(
+    userId,
+    { $set: { isVerified: true } },
+    { new: true }
+  );
+}
+
 module.exports = mongoose.model('User', userSchema);

@@ -48,11 +48,8 @@ class UserService {
       revieweeId,
       reviewId,
     };
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $push: { outgoingReviews: review } },
-      { new: true }
-    );
+
+    await User.addOutgoingReview(userId, review);
     return { outgoingReview: review };
   }
 
@@ -133,11 +130,7 @@ class UserService {
   }
 
   async verifyUser(userId) {
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { $set: { isVerified: true } },
-      { new: true }
-    );
+    const user = await User.verifyUser(userId);
     return { user };
   }
 }
