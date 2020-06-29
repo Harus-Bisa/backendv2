@@ -8,16 +8,7 @@ const schoolService = new SchoolService();
 const recentService = new RecentService();
 
 class RevieweeService {
-	// return Object.freeze({
-	// 	createRevieweeWithReview,
-	// 	getRevieweesByName,
-	// 	createReview,
-	// 	getRevieweeById,
-	// 	updateHelpfulnessVote,
-	// 	getReviewById,
-	// });
-
-	async createRevieweeWithReview(revieweeData) {
+	async createRevieweeWithReview(authorId, revieweeData) {
 		const formatedData = {
 			name: revieweeData.name,
 			school: revieweeData.school,
@@ -40,8 +31,6 @@ class RevieweeService {
 			],
 		};
 
-		schoolService.addRevieweeCount(revieweeData.school);
-
 		let newReviewee = await Reviewee.create(formatedData);
 		newReviewee = await this.formatRevieweeObject(newReviewee);
 		newReviewee.reviews[0].isAuthor = true;
@@ -52,23 +41,35 @@ class RevieweeService {
 			review: revieweeData.review,
 			overallRating: newReviewee.overallRating,
 		};
+
 		recentService.updateMostRecents('review', newReview);
+		schoolService.addRevieweeCount(revieweeData.school);
+		userService.addOutgoingReview(
+			authorId,
+			newReviewee.revieweeId,
+			newReviewee.reviews[0].reviewId
+		);
 
 		return { newReviewee };
 	}
 
-	async getRevieweesByName(name, school, index = 0, limit = 10) {
-		const schoolQuery = school ? `(?i)(^| )${school}.*` : '.*';
-		const nameQuery = name ? `(?i)(^| )${name}.*` : '.*';
-		// TODO make pagination faster
-		let reviewees = await Reviewee.find({
-			$and: [
-				{ name: { $regex: nameQuery } },
-				{ school: { $regex: schoolQuery } },
-			],
-		})
-			.skip(parseInt(index))
-			.limit(parseInt(limit));
+	async getRevieweesByName(
+		name,
+		school,
+		index = 0,
+		limit = 10,
+		sortBy = undefined,
+		ascending = true
+	) {
+		let reviewees = await Reviewee.getReviewees(name, school, sortBy);
+		index = parseInt(index);
+		limit = parseInt(limit);
+
+		if (index < 0) {
+			reviewees = [];
+			return { reviewees };
+		}
+
 		reviewees = reviewees.map((reviewee) => {
 			let sumOverallRating = 0;
 			const numberOfReviews = reviewee.reviews.length;
@@ -86,6 +87,47 @@ class RevieweeService {
 					numberOfReviews > 0 ? sumOverallRating / numberOfReviews : 0,
 			};
 		});
+
+		switch (sortBy) {
+			case 'name':
+				reviewees.sort((a, b) =>
+					a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
+				);
+				break;
+			case 'school':
+				reviewees.sort((a, b) =>
+					a.school.toLowerCase() > b.school.toLowerCase() ? 1 : -1
+				);
+				break;
+			case 'totalReviews':
+				reviewees.sort((a, b) =>
+					a.numberOfReviews > b.numberOfReviews
+						? 1
+						: a.numberOfReviews === b.numberOfReviews
+						? a.name.toLowerCase() > b.name.toLowerCase()
+							? 1
+							: -1
+						: -1
+				);
+				break;
+			case 'overallRating':
+				reviewees.sort((a, b) =>
+					a.overallRating > b.overallRating
+						? 1
+						: a.overallRating === b.overallRating
+						? a.name.toLowerCase() > b.name.toLowerCase()
+							? 1
+							: -1
+						: -1
+				);
+				break;
+    }
+
+    if (ascending === 'false') {
+      reviewees.reverse();
+    }
+
+		reviewees = reviewees.slice(index, index + limit);
 
 		return { reviewees };
 	}
@@ -124,11 +166,7 @@ class RevieweeService {
 		return { revieweeId: foundRevieweeId, newReview };
 	}
 
-	async getRevieweeById(
-		revieweeId,
-		authenticated = true,
-		userId = undefined
-	) {
+	async getRevieweeById(revieweeId, authenticated = true, userId = undefined) {
 		const REVIEW_LIMIT = 3;
 		let reviewee = await Reviewee.findById(revieweeId);
 		if (reviewee) {
@@ -266,7 +304,7 @@ class RevieweeService {
 					);
 				}
 			}
-			
+
 			formattedReviewee.reviews[i] = this.formatReviewObject(
 				formattedReviewee.reviews[i],
 				isAuthor,
@@ -279,7 +317,9 @@ class RevieweeService {
 		formattedReviewee.revieweeId = formattedReviewee._id;
 		formattedReviewee.numberOfReviews = formattedReviewee.reviews.length;
 		// formattedReviewee.reviews = formattedReviewee.reviews.reverse();
-		formattedReviewee.reviews = this.sortReviewsByAuthor(formattedReviewee.reviews);
+		formattedReviewee.reviews = this.sortReviewsByAuthor(
+			formattedReviewee.reviews
+		);
 
 		if (revieweeObject.reviews.length > 0) {
 			formattedReviewee.overallRating =
@@ -310,7 +350,7 @@ class RevieweeService {
 	formatReviewObject(
 		reviewObject,
 		isAuthor = false,
-		userVote = undefined,
+		userVote = null,
 		hasReported = false
 	) {
 		if (!reviewObject) {
