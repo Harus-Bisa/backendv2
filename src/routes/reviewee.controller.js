@@ -47,7 +47,7 @@ router.post('/', authentication, async (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const { reviewees } = await revieweeService.getRevieweesByName(
+    const { reviewees, totalReviewees } = await revieweeService.getRevieweesByName(
       req.query.name,
       req.query.school,
       req.query.index,
@@ -57,7 +57,7 @@ router.get('/', async (req, res) => {
     );
     res.statusMessage =
       'Get list of reviewees matching the query is successful.';
-    return res.status(200).send(reviewees);
+    return res.status(200).send({reviewees, totalReviewees});
   } catch (err) {
     console.log(err);
     res.statusMessage =

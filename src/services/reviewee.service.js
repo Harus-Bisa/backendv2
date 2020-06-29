@@ -127,9 +127,10 @@ class RevieweeService {
       reviewees.reverse();
     }
 
+    const totalReviewees = reviewees.length;
 		reviewees = reviewees.slice(index, index + limit);
 
-		return { reviewees };
+		return { reviewees, totalReviewees };
 	}
 
 	async createReview(revieweeId, reviewData) {

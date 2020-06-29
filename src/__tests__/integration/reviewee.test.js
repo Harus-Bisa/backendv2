@@ -51,6 +51,22 @@ const revieweeData = {
 
 var mailApiCalled = 0;
 
+const fakeReviewees = [
+	{
+		name: 'alpha beta',
+		school: 'charlie delta',
+		reviews: [{ overallRating: 3.0 }, { overallRating: 4.0 }],
+	},
+	{
+		name: 'epsilon fourrier',
+		school: 'Del hess',
+	},
+	{
+		name: 'Alp',
+		school: 'chat gamma',
+	},
+];
+
 describe('Reviewee endpoints', () => {
 	it('creating new reviewee without authenticated should fail', async (done) => {
 		const res = await request(app)
@@ -158,21 +174,9 @@ describe('Reviewee endpoints', () => {
 	});
 
 	it('query reviewees without options should be successful', async (done) => {
-		const revieweeOne = {
-			name: 'alpha beta',
-			school: 'charlie delta',
-			reviews: [{ overallRating: 3.0 }, { overallRating: 4.0 }],
-		};
-
-		const revieweeTwo = {
-			name: 'epsilon fourrier',
-			school: 'Del hess',
-		};
-
-		const revieweeThree = {
-			name: 'Alp',
-			school: 'chat gamma',
-		};
+		const revieweeOne = fakeReviewees[0];
+		const revieweeTwo = fakeReviewees[1];
+		const revieweeThree = fakeReviewees[2];
 
 		await Reviewee.deleteMany({});
 		await Reviewee.create(revieweeOne);
@@ -182,9 +186,9 @@ describe('Reviewee endpoints', () => {
 		const res = await request(app).get('/reviewees');
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 
 		expect(reviewees[0].name).toBe(revieweeOne.name);
 		expect(reviewees[0].school).toBe(revieweeOne.school);
@@ -215,9 +219,9 @@ describe('Reviewee endpoints', () => {
 			.query({ name: 'xyz', school: 'xyz' });
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(0);
 		done();
 	});
@@ -228,12 +232,12 @@ describe('Reviewee endpoints', () => {
 			.query({ name: 'alp' });
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(2);
-		expect(reviewees[0].name).toBe('alpha beta');
-		expect(reviewees[1].name).toBe('Alp');
+		expect(reviewees[0].name).toBe(fakeReviewees[0].name);
+		expect(reviewees[1].name).toBe(fakeReviewees[2].name);
 
 		done();
 	});
@@ -244,12 +248,12 @@ describe('Reviewee endpoints', () => {
 			.query({ school: 'del' });
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(2);
-		expect(reviewees[0].name).toBe('alpha beta');
-		expect(reviewees[1].name).toBe('epsilon fourrier');
+		expect(reviewees[0].name).toBe(fakeReviewees[0].name);
+		expect(reviewees[1].name).toBe(fakeReviewees[1].name);
 
 		done();
 	});
@@ -260,11 +264,11 @@ describe('Reviewee endpoints', () => {
 			.query({ name: 'alp', school: 'del' });
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(1);
-		expect(reviewees[0].name).toBe('alpha beta');
+		expect(reviewees[0].name).toBe(fakeReviewees[0].name);
 
 		done();
 	});
@@ -275,11 +279,11 @@ describe('Reviewee endpoints', () => {
 			.query({ name: 'alp', limit: 1 });
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(1);
-		expect(reviewees[0].name).toBe('alpha beta');
+		expect(reviewees[0].name).toBe(fakeReviewees[0].name);
 
 		done();
 	});
@@ -290,11 +294,11 @@ describe('Reviewee endpoints', () => {
 			.query({ name: 'alp', limit: 1, index: 1 });
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(1);
-		expect(reviewees[0].name).toBe('Alp');
+		expect(reviewees[0].name).toBe(fakeReviewees[2].name);
 
 		done();
 	});
@@ -305,9 +309,9 @@ describe('Reviewee endpoints', () => {
 			.query({ index: -1 });
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(0);
 
 		done();
@@ -319,9 +323,9 @@ describe('Reviewee endpoints', () => {
 			.query({ index: 100 });
 
 		expect(res.statusCode).toBe(200);
-		expect(Array.isArray(res.body)).toBe(true);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
-		const reviewees = res.body;
+		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(0);
 
 		done();
@@ -332,10 +336,10 @@ describe('Reviewee endpoints', () => {
 			.get('/reviewees')
 			.query({ sortBy: 'name' });
 
-		const reviewees = res.body;
-		expect(reviewees[0].name).toBe('Alp');
-		expect(reviewees[1].name).toBe('alpha beta');
-		expect(reviewees[2].name).toBe('epsilon fourrier');
+		const reviewees = res.body.reviewees;
+		expect(reviewees[0].name).toBe(fakeReviewees[2].name);
+		expect(reviewees[1].name).toBe(fakeReviewees[0].name);
+		expect(reviewees[2].name).toBe(fakeReviewees[1].name);
 		done();
 	});
 
@@ -344,10 +348,10 @@ describe('Reviewee endpoints', () => {
 			.get('/reviewees')
 			.query({ sortBy: 'school' });
 
-		const reviewees = res.body;
-		expect(reviewees[0].name).toBe('alpha beta');
-		expect(reviewees[1].name).toBe('Alp');
-		expect(reviewees[2].name).toBe('epsilon fourrier');
+		const reviewees = res.body.reviewees;
+		expect(reviewees[0].name).toBe(fakeReviewees[0].name);
+		expect(reviewees[1].name).toBe(fakeReviewees[2].name);
+		expect(reviewees[2].name).toBe(fakeReviewees[1].name);
 		done();
 	});
 
@@ -356,10 +360,10 @@ describe('Reviewee endpoints', () => {
 			.get('/reviewees')
 			.query({ sortBy: 'totalReviews' });
 
-		const reviewees = res.body;
-		expect(reviewees[0].name).toBe('Alp');
-		expect(reviewees[1].name).toBe('epsilon fourrier');
-		expect(reviewees[2].name).toBe('alpha beta');
+		const reviewees = res.body.reviewees;
+		expect(reviewees[0].name).toBe(fakeReviewees[2].name);
+		expect(reviewees[1].name).toBe(fakeReviewees[1].name);
+		expect(reviewees[2].name).toBe(fakeReviewees[0].name);
 		done();
 	});
 
@@ -368,10 +372,10 @@ describe('Reviewee endpoints', () => {
 			.get('/reviewees')
 			.query({ sortBy: 'overallRating' });
 
-		const reviewees = res.body;
-		expect(reviewees[0].name).toBe('Alp');
-		expect(reviewees[1].name).toBe('epsilon fourrier');
-		expect(reviewees[2].name).toBe('alpha beta');
+		const reviewees = res.body.reviewees;
+		expect(reviewees[0].name).toBe(fakeReviewees[2].name);
+		expect(reviewees[1].name).toBe(fakeReviewees[1].name);
+		expect(reviewees[2].name).toBe(fakeReviewees[0].name);
 		done();
 	});
 
@@ -380,10 +384,23 @@ describe('Reviewee endpoints', () => {
 			.get('/reviewees')
 			.query({ sortBy: 'name', ascending: false });
 
-		const reviewees = res.body;
-		expect(reviewees[0].name).toBe('epsilon fourrier');
-		expect(reviewees[1].name).toBe('alpha beta');
-		expect(reviewees[2].name).toBe('Alp');
+		const reviewees = res.body.reviewees;
+		expect(reviewees[0].name).toBe(fakeReviewees[1].name);
+		expect(reviewees[1].name).toBe(fakeReviewees[0].name);
+		expect(reviewees[2].name).toBe(fakeReviewees[2].name);
+		done();
+	});
+
+	it('query reviewees return correct total reviewee', async (done) => {
+		const res = await request(app)
+			.get('/reviewees')
+			.query({ limit: 1 });
+
+		expect(res.statusCode).toBe(200);
+		expect(Array.isArray(res.body.reviewees)).toBe(true);
+		const reviewees = res.body.reviewees;
+		expect(reviewees.length).toBe(1);
+		expect(res.body.totalReviewees).toBe(3);
 		done();
 	});
 });
