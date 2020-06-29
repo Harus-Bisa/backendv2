@@ -143,11 +143,11 @@ describe('Review ticket endpoints', () => {
 
   it('User database should be updated', async (done) => {
     const user = await User.findOne({email: userEmail});
-    const userReviews = user.reportedReviews;
-    const userLastReview = userReviews[userReviews.length - 1];
+    const userReportedReviews = user.reportedReviews;
+    const userLastReportedReview = userReportedReviews[userReportedReviews.length - 1];
     
-    expect(userLastReview.revieweeId.toString()).toEqual(revieweeId);
-    expect(userLastReview.reviewId.toString()).toEqual(reviewId);
+    expect(userLastReportedReview.revieweeId.toString()).toEqual(revieweeId);
+    expect(userLastReportedReview.reviewId.toString()).toEqual(reviewId);
     done();
   });
 });
