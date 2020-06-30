@@ -152,16 +152,21 @@ router.post(
 		}
 
 		try {
+			const userId = req.userId;
+			const revieweeId = req.params.revieweeId;
+			const reviewId = req.params.reviewId;
+			const vote = req.params.vote;
+
 			const {
 				cancelVote,
 				switchVote,
 				selectedVote,
 				user,
 			} = await userService.updateHelpfulnessVote(
-				req.userId,
-				req.params.revieweeId,
-				req.params.reviewId,
-				req.params.vote
+				userId,
+				revieweeId,
+				reviewId,
+				vote
 			);
 
 			if (!user) {
@@ -190,10 +195,10 @@ router.post(
 					switchVote,
 					selectedVote,
 				} = await userService.updateHelpfulnessVote(
-					req.userId,
-					req.params.revieweeId,
-					req.params.reviewId,
-					req.params.vote
+					userId,
+					revieweeId,
+					reviewId,
+					vote
 				);
 
 				res.statusMessage = 'Review not found.';

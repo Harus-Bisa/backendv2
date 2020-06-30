@@ -72,9 +72,11 @@ class RevieweeService {
 		reviewees = reviewees.map((reviewee) => {
 			let sumOverallRating = 0;
 			const numberOfReviews = reviewee.reviews.length;
+      let countedOverallRating = 0;
 
 			for (let i = 0; i < numberOfReviews; i++) {
-				sumOverallRating += reviewee.reviews[i].overallRating;
+        sumOverallRating += reviewee.reviews[i].overallRating;
+        countedOverallRating += 1;
 			}
 
 			return {
@@ -83,7 +85,7 @@ class RevieweeService {
 				school: reviewee.school,
 				numberOfReviews: numberOfReviews,
 				overallRating:
-					numberOfReviews > 0 ? sumOverallRating / numberOfReviews : 0,
+					countedOverallRating > 0 ? sumOverallRating / countedOverallRating : 0,
 			};
 		});
 
@@ -170,7 +172,10 @@ class RevieweeService {
 			reviewee = await this.formatRevieweeObject(reviewee, userId);
 			if (!authenticated) {
 				// limit returned review
-				reviewee.reviews = limitReviewCount(reviewee.reviews, REVIEW_LIMIT);
+				reviewee.reviews = this.limitReviewCount(
+					reviewee.reviews,
+					REVIEW_LIMIT
+				);
 			}
 			schoolService.addVisitedCount(reviewee.school);
 		}
@@ -265,12 +270,26 @@ class RevieweeService {
 		let sumRecommendationRating = 0;
 		let sumDifficultyRating = 0;
 
+		let countedOverallRating = 0;
+		let countedDifficultyRating = 0;
+		let countedRecommendationRating = 0;
 		// accumulate reviews rating
 		for (let i = 0; i < formattedReviewee.reviews.length; i++) {
-			sumOverallRating += formattedReviewee.reviews[i].overallRating;
-			sumDifficultyRating += formattedReviewee.reviews[i].difficultyRating;
-			sumRecommendationRating +=
-				formattedReviewee.reviews[i].recommendationRating;
+			if (formattedReviewee.reviews[i].overallRating !== undefined) {
+				sumOverallRating += formattedReviewee.reviews[i].overallRating;
+				countedOverallRating += 1;
+			}
+
+			if (formattedReviewee.reviews[i].difficultyRating !== undefined) {
+				sumDifficultyRating += formattedReviewee.reviews[i].difficultyRating;
+				countedDifficultyRating += 1;
+			}
+
+			if (formattedReviewee.reviews[i].recommendationRating) {
+				sumRecommendationRating +=
+					formattedReviewee.reviews[i].recommendationRating;
+				countedRecommendationRating += 1;
+			}
 
 			let isAuthor = false;
 			let userVote;
@@ -317,25 +336,18 @@ class RevieweeService {
 			formattedReviewee.reviews
 		);
 
-		if (revieweeObject.reviews.length > 0) {
-			formattedReviewee.overallRating =
-				sumOverallRating / formattedReviewee.reviews.length;
-
-			formattedReviewee.recommendationRating =
-				sumRecommendationRating / formattedReviewee.reviews.length;
-
-			formattedReviewee.difficultyRating =
-				sumDifficultyRating / formattedReviewee.reviews.length;
-
-			formattedReviewee.overallRating = formattedReviewee.overallRating;
-			formattedReviewee.recommendationRating =
-				formattedReviewee.recommendationRating;
-			formattedReviewee.difficultyRating = formattedReviewee.difficultyRating;
-		} else {
-			formattedReviewee.overallRating = 0;
-			formattedReviewee.recommendationRating = 0;
-			formattedReviewee.difficultyRating = 0;
-		}
+		formattedReviewee.overallRating =
+      countedOverallRating > 0 ? sumOverallRating / countedOverallRating : 0;
+      
+		formattedReviewee.recommendationRating =
+			countedRecommendationRating > 0
+				? sumRecommendationRating / countedRecommendationRating
+        : 0;
+        
+		formattedReviewee.difficultyRating =
+			countedDifficultyRating > 0
+				? sumDifficultyRating / countedDifficultyRating
+				: 0;
 
 		delete formattedReviewee.__v;
 		delete formattedReviewee._id;
@@ -371,6 +383,7 @@ class RevieweeService {
 	}
 
 	sortReviewsByAuthor(reviews) {
+    // put all reviews with isAuthor == true to the beginning of array
 		reviews = reviews.reverse();
 
 		let isAuthorReviews = [];

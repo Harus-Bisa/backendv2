@@ -1,5 +1,6 @@
 var jwt = require('jsonwebtoken');
 var config = require('../config');
+const e = require('express');
 
 function verifyToken(req, res, next) {
   // check for Authorization header and token exist
@@ -18,6 +19,8 @@ function verifyToken(req, res, next) {
       // user can still do limited actions if not authenticated
       req.authenticated = false;
     }
+  } else {
+    req.authenticated = false;
   }
 
   next();

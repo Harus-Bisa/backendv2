@@ -18,7 +18,7 @@ test('not providing authorization token should fail', async () => {
     });
   });
 
-  expect(result.authenticated).not.toBeDefined();
+  expect(result.authenticated).toBe(false);
 });
 
 test('Providing invalid authorization token should fail', async () => {
