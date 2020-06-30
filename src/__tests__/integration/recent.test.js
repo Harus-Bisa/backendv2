@@ -4,19 +4,6 @@ const RecentService = require('../../services/recent.service');
 
 const recentService = new RecentService();
 
-const Recent = require('../../models/Recent');
-const ReviewTicket = require('../../models/ReviewTicket');
-
-// jest.mock('../../db');
-
-// const mostRecentReview = {
-//   name: reviewee.name,
-//   school: reviewee.school,
-//   review: newReview.review,
-//   overallRating: newReview.overallRating,
-// };
-// recentService.updateMostRecents('review', mostRecentReview);
-
 describe('Recent endpoints', () => {
   it('Get empty recent review should be successful', async (done) => {
     const res = await request(app).get('/recents/reviews');
@@ -29,14 +16,13 @@ describe('Recent endpoints', () => {
   });
 
   it('Get recent review should be succesful', async (done) => {
-    await Recent.create({recentType: 'review'})
     const newReview = {
       name: 'foo',
       school: 'bar',
       review: 'foobar',
       overallRating: 3.5,
     };
-    let {reviewsCount} = await recentService.updateMostRecents('review', newReview);
+    await recentService.updateMostRecents('review', newReview);
     const res = await request(app).get('/recents/reviews');
 
     const mostRecentReviews = res.body;
@@ -60,7 +46,7 @@ describe('Recent endpoints', () => {
         overallRating: 4.5,
       };
       newReviews.push(review);
-      let {reviewsCount} = await recentService.updateMostRecents('review', review);
+      await recentService.updateMostRecents('review', review);
     }
 
     const res = await request(app).get('/recents/reviews');
