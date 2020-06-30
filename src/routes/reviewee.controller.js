@@ -70,7 +70,6 @@ router.get('/', async (req, res) => {
 			'Get list of reviewees matching the query is successful.';
 
 		return res.status(200).send({ reviewees, totalReviewees });
-		
 	} catch (err) {
 		console.log(err);
 		res.statusMessage =
@@ -106,16 +105,30 @@ router.post('/:revieweeId/reviews', authentication, async (req, res) => {
 		return res.status(401).end();
 	}
 	try {
-		const { revieweeId, newReview } = await revieweeService.createReview(
-			req.params.revieweeId,
-			req.body
+		const review = {
+			name: req.body.name,
+			review: req.body.review,
+			school: req.body.school,
+			courseName: req.body.courseName,
+			overallRating: req.body.overallRating,
+			recommendationRating: req.body.recommendationRating,
+			difficultyRating: req.body.difficultyRating,
+			yearTaken: req.body.yearTaken,
+			grade: req.body.grade,
+			tags: req.body.tags,
+			textbookRequired: req.body.textbookRequired,
+			teachingStyles: req.body.teachingStyles,
+		};
+		const revieweeId = req.params.revieweeId;
+		const authorId = req.userId;
+
+		const { foundRevieweeId, newReview } = await revieweeService.createReview(
+			authorId,
+			revieweeId,
+			review
 		);
-		if (revieweeId) {
-			const { outgoingReview } = await userService.addOutgoingReview(
-				req.userId,
-				revieweeId,
-				newReview.reviewId
-			);
+
+		if (foundRevieweeId) {
 			res.statusMessage = 'Create review for a reviewee is successful.';
 			return res.status(201).send(newReview);
 		} else {

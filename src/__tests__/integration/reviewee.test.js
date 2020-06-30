@@ -4,7 +4,12 @@ const app = require('../../app');
 const sgMail = require('@sendgrid/mail');
 const User = require('../../models/User');
 const Reviewee = require('../../models/Reviewee');
+const RevieweeService = require('../../services/reviewee.service');
+const UserService = require('../../services/user.service');
+const mongoose = require('mongoose');
 
+const revieweeService = new RevieweeService();
+const userService = new UserService();
 jest.mock('@sendgrid/mail');
 
 const userEmail = randomstring.generate() + '@gmail.com';
@@ -66,6 +71,19 @@ const fakeReviewees = [
 		school: 'chat gamma',
 	},
 ];
+
+const newReview = {
+	review: randomstring.generate(),
+	courseName: randomstring.generate(),
+	overallRating: 5.0,
+	recommendationRating: 5.0,
+	difficultyRating: 5.0,
+	yearTaken: 2020,
+	grade: randomstring.generate(),
+	textbookRequired: true,
+	tags: [randomstring.generate(), randomstring.generate()],
+	teachingStyles: [randomstring.generate()],
+};
 
 describe('Reviewee endpoints', () => {
 	it('creating new reviewee without authenticated should fail', async (done) => {
@@ -149,10 +167,13 @@ describe('Reviewee endpoints', () => {
 		expect(res.body.reviews[0].review).toBe(review);
 		expect(res.body.reviews[0].courseName).toBe(courseName);
 		expect(res.body.reviews[0].overallRating).toBe(overallRating);
+		expect(res.body.reviews[0].recommendationRating).toBe(recommendationRating);
 		expect(res.body.reviews[0].difficultyRating).toBe(difficultyRating);
 		expect(res.body.reviews[0].yearTaken).toBe(yearTaken);
 		expect(res.body.reviews[0].grade).toBe(grade);
 		expect(res.body.reviews[0].textbookRequired).toBe(textbookRequired);
+		expect(res.body.reviews[0].helpfulUpVote).toBe(0);
+		expect(res.body.reviews[0].helpfulDownVote).toBe(0);
 		expect(res.body.reviews[0].tags).toEqual(tags);
 		expect(res.body.reviews[0].teachingStyles).toEqual(teachingStyles);
 		expect(res.body.reviews[0].isAuthor).toBe(true);
@@ -199,6 +220,7 @@ describe('Reviewee endpoints', () => {
 				0
 			) / revieweeOne.reviews.length;
 		expect(reviewees[0].overallRating).toBe(revieweeOneOverallRatingAvg);
+		expect(reviewees[0].reviews).not.toBeDefined();
 
 		expect(reviewees[1].name).toBe(revieweeTwo.name);
 		expect(reviewees[1].school).toBe(revieweeTwo.school);
@@ -403,4 +425,311 @@ describe('Reviewee endpoints', () => {
 		expect(res.body.totalReviewees).toBe(3);
 		done();
 	});
+
+	it('create new review without authentication should fail', async (done) => {
+		const randomRevieweeId = mongoose.Types.ObjectId();
+		const res = await request(app).post(
+			'/reviewees/' + randomRevieweeId + '/reviews'
+		);
+
+		expect(res.statusCode).toBe(401);
+		done();
+	});
+
+	it('create new review for non existent reviewee should fail', async (done) => {
+		const randomRevieweeId = mongoose.Types.ObjectId();
+		const res = await request(app)
+			.post('/reviewees/' + randomRevieweeId + '/reviews')
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
+
+		expect(res.statusCode).toBe(404);
+		done();
+	});
+
+	it('create new review should be successful', async (done) => {
+		const reviewee = await Reviewee.create({
+			name: randomstring.generate(),
+			school: randomstring.generate(),
+		});
+		const res = await request(app)
+			.post('/reviewees/' + reviewee._id + '/reviews')
+			.set('authorization', 'Bearer ' + userAuthenticationToken)
+			.send(newReview);
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body.reviewId).toBeDefined();
+		expect(res.body.review).toBe(newReview.review);
+		expect(res.body.courseName).toBe(newReview.courseName);
+		expect(res.body.overallRating).toBe(newReview.overallRating);
+		expect(res.body.recommendationRating).toBe(newReview.recommendationRating);
+		expect(res.body.difficultyRating).toBe(newReview.difficultyRating);
+		expect(res.body.yearTaken).toBe(newReview.yearTaken);
+		expect(res.body.grade).toBe(newReview.grade);
+		expect(res.body.textbookRequired).toBe(newReview.textbookRequired);
+		expect(res.body.helpfulUpVote).toBe(0);
+		expect(res.body.helpfulDownVote).toBe(0);
+		expect(res.body.tags).toEqual(newReview.tags);
+		expect(res.body.teachingStyles).toEqual(newReview.teachingStyles);
+		expect(res.body.isAuthor).toBe(true);
+		expect(res.body.hasReported).toBe(false);
+		expect(res.body.userVote).toBe(null);
+
+		const user = await User.findById(userId);
+		const userOutgoingReviews = user.outgoingReviews;
+		const lastOutgoingReview =
+			userOutgoingReviews[userOutgoingReviews.length - 1];
+
+		expect(lastOutgoingReview.revieweeId.toString()).toBe(
+			reviewee._id.toString()
+		);
+		expect(lastOutgoingReview.reviewId.toString()).toBe(res.body.reviewId);
+		done();
+	});
+
+	it('vote review without authentication should fail', async (done) => {
+		const randomRevieweeId = mongoose.Types.ObjectId();
+		const randomReviewId = mongoose.Types.ObjectId();
+		const res = await request(app).post(
+			'/reviewees/' +
+				randomRevieweeId +
+				'/reviews/' +
+				randomReviewId +
+				'/upVote'
+		);
+
+		expect(res.statusCode).toBe(401);
+		done();
+	});
+
+	it('vote review for non existent reviewee should fail', async (done) => {
+		const randomRevieweeId = mongoose.Types.ObjectId();
+		const randomReviewId = mongoose.Types.ObjectId();
+		const res = await request(app)
+			.post(
+				'/reviewees/' +
+					randomRevieweeId +
+					'/reviews/' +
+					randomReviewId +
+					'/upVote'
+			)
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
+
+		expect(res.statusCode).toBe(404);
+		done();
+	});
+
+	it('vote review for non existent review should fail', async (done) => {
+		const reviewee = await Reviewee.create({
+			name: randomstring.generate(),
+			school: randomstring.generate(),
+		});
+		const randomReviewId = mongoose.Types.ObjectId();
+		const res = await request(app)
+			.post(
+				'/reviewees/' + reviewee._id + '/reviews/' + randomReviewId + '/upVote'
+			)
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
+
+		expect(res.statusCode).toBe(404);
+		done();
+	});
+
+	it('vote up review should be successful', async (done) => {
+		let { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
+		let reviewee = newReviewee;
+
+		firstReview = newReviewee.reviews[0];
+		const vote = 'upVote';
+		const res = await request(app)
+			.post(
+				'/reviewees/' +
+					reviewee.revieweeId +
+					'/reviews/' +
+					firstReview.reviewId +
+					'/' +
+					vote
+			)
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body.reviewId).toBe(firstReview.reviewId.toString());
+		expect(res.body.userVote).toBe(vote);
+		expect(res.body.helpfulUpVote).toBe(firstReview.helpfulUpVote + 1);
+		expect(res.body.helpfulDownVote).toBe(firstReview.helpfulDownVote);
+
+		done();
+	});
+
+	it('vote down review should be successful', async (done) => {
+		let { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
+		let reviewee = newReviewee;
+
+		firstReview = reviewee.reviews[0];
+		const vote = 'downVote';
+		const res = await request(app)
+			.post(
+				'/reviewees/' +
+					reviewee.revieweeId +
+					'/reviews/' +
+					firstReview.reviewId +
+					'/' +
+					vote
+			)
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body.reviewId).toBe(firstReview.reviewId.toString());
+		expect(res.body.userVote).toBe(vote);
+		expect(res.body.helpfulUpVote).toBe(firstReview.helpfulUpVote);
+		expect(res.body.helpfulDownVote).toBe(firstReview.helpfulDownVote + 1);
+
+		done();
+	});
+
+	it('cancel up vote should be successful', async (done) => {
+		let { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
+		let reviewee = newReviewee;
+		firstReview = reviewee.reviews[0];
+
+		let res;
+		const votes = ['upVote', 'upVote'];
+		for (i = 0; i < votes.length; i++) {
+			res = await request(app)
+				.post(
+					'/reviewees/' +
+						reviewee.revieweeId +
+						'/reviews/' +
+						firstReview.reviewId +
+						'/' +
+						votes[i]
+				)
+				.set('authorization', 'Bearer ' + userAuthenticationToken);
+		}
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body.reviewId).toBe(firstReview.reviewId.toString());
+		expect(res.body.userVote).toBe(null);
+		expect(res.body.helpfulUpVote).toBe(firstReview.helpfulUpVote);
+		expect(res.body.helpfulDownVote).toBe(firstReview.helpfulDownVote);
+
+		done();
+  });
+  
+  it('cancel down vote should be successful', async (done) => {
+		let { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
+		let reviewee = newReviewee;
+		firstReview = reviewee.reviews[0];
+
+		let res;
+		const votes = ['downVote', 'downVote'];
+		for (i = 0; i < votes.length; i++) {
+			res = await request(app)
+				.post(
+					'/reviewees/' +
+						reviewee.revieweeId +
+						'/reviews/' +
+						firstReview.reviewId +
+						'/' +
+						votes[i]
+				)
+				.set('authorization', 'Bearer ' + userAuthenticationToken);
+		}
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body.reviewId).toBe(firstReview.reviewId.toString());
+		expect(res.body.userVote).toBe(null);
+		expect(res.body.helpfulUpVote).toBe(firstReview.helpfulUpVote);
+		expect(res.body.helpfulDownVote).toBe(firstReview.helpfulDownVote);
+
+		done();
+  });
+  
+  it('switching up vote to down vote should be successful', async (done) => {
+		let { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
+		let reviewee = newReviewee;
+		firstReview = reviewee.reviews[0];
+
+		let res;
+		const votes = ['upVote', 'downVote'];
+		for (i = 0; i < votes.length; i++) {
+			res = await request(app)
+				.post(
+					'/reviewees/' +
+						reviewee.revieweeId +
+						'/reviews/' +
+						firstReview.reviewId +
+						'/' +
+						votes[i]
+				)
+				.set('authorization', 'Bearer ' + userAuthenticationToken);
+		}
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body.reviewId).toBe(firstReview.reviewId.toString());
+		expect(res.body.userVote).toBe('downVote');
+		expect(res.body.helpfulUpVote).toBe(firstReview.helpfulUpVote);
+		expect(res.body.helpfulDownVote).toBe(firstReview.helpfulDownVote + 1);
+
+		done();
+  });
+  
+  it('switching down vote to up vote should be successful', async (done) => {
+		let { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
+		let reviewee = newReviewee;
+		firstReview = reviewee.reviews[0];
+
+		let res;
+		const votes = ['downVote', 'upVote'];
+		for (i = 0; i < votes.length; i++) {
+			res = await request(app)
+				.post(
+					'/reviewees/' +
+						reviewee.revieweeId +
+						'/reviews/' +
+						firstReview.reviewId +
+						'/' +
+						votes[i]
+				)
+				.set('authorization', 'Bearer ' + userAuthenticationToken);
+		}
+
+    console.log(res.body)
+		expect(res.statusCode).toBe(201);
+		expect(res.body.reviewId).toBe(firstReview.reviewId.toString());
+		expect(res.body.userVote).toBe('upVote');
+		expect(res.body.helpfulUpVote).toBe(firstReview.helpfulUpVote + 1);
+		expect(res.body.helpfulDownVote).toBe(firstReview.helpfulDownVote);
+
+		done();
+	});
+
+	it('get non existent reviewee by id should fail', async (done) => {
+		const randomRevieweeId = mongoose.Types.ObjectId();
+		const res = await request(app).get('/reviewees/' + randomRevieweeId);
+
+		expect(res.statusCode).toBe(404);
+		done();
+	});
 });
+
+// it('limited reviews when get reviewee by id without authentication', async (done) => {
+
+// });

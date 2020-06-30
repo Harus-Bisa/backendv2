@@ -74,7 +74,7 @@ class UserService {
       vote,
     };
 
-    const user = await User.findById(userId);
+    let user = await User.findById(userId);
     let existingReviewVote;
 
     if (user) {
@@ -88,7 +88,7 @@ class UserService {
 
     if (!existingReviewVote) {
       // not yet vote previously
-      const user = await User.findByIdAndUpdate(
+      user = await User.findByIdAndUpdate(
         userId,
         { $push: { helpfulnessVotes: selectedVote } },
         { new: true }
@@ -97,7 +97,7 @@ class UserService {
       // change vote (up to down or down to up)
       switchVote = true;
       const voteSelector = 'helpfulnessVotes.$[elem].vote';
-      const user = await User.findByIdAndUpdate(
+      user = await User.findByIdAndUpdate(
         userId,
         { $set: { [voteSelector]: vote } },
         {
@@ -113,7 +113,7 @@ class UserService {
     } else {
       // cancel vote
       cancelVote = true;
-      const user = await User.findByIdAndUpdate(
+      user = await User.findByIdAndUpdate(
         userId,
         {
           $pull: {

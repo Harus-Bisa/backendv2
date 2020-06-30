@@ -9,29 +9,28 @@ const recentService = new RecentService();
 
 class RevieweeService {
 	async createRevieweeWithReview(authorId, revieweeData) {
-		const formatedData = {
-			name: revieweeData.name,
-			school: revieweeData.school,
-			reviews: [
-				{
-					review: revieweeData.review,
-					courseName: revieweeData.courseName,
-					overallRating: revieweeData.overallRating,
-					recommendationRating: revieweeData.recommendationRating,
-					difficultyRating: revieweeData.difficultyRating,
-					yearTaken: revieweeData.yearTaken,
-					grade: revieweeData.grade,
-					tags: revieweeData.tags,
-					textbookRequired: revieweeData.textbookRequired,
-					teachingStyles: revieweeData.teachingStyles,
-					helpfulUpVote: 0,
-					helpfulDownVote: 0,
-					createdAt: Date.now(),
-				},
-			],
+		const review = {
+			review: revieweeData.review,
+			courseName: revieweeData.courseName,
+			overallRating: revieweeData.overallRating,
+			recommendationRating: revieweeData.recommendationRating,
+			difficultyRating: revieweeData.difficultyRating,
+			yearTaken: revieweeData.yearTaken,
+			grade: revieweeData.grade,
+			tags: revieweeData.tags,
+			textbookRequired: revieweeData.textbookRequired,
+			teachingStyles: revieweeData.teachingStyles,
+			helpfulUpVote: 0,
+			helpfulDownVote: 0,
+			createdAt: Date.now(),
 		};
 
-		let newReviewee = await Reviewee.create(formatedData);
+		let newReviewee = await Reviewee.createReviewee(
+			revieweeData.name,
+			revieweeData.school,
+			review
+		);
+
 		newReviewee = await this.formatRevieweeObject(newReviewee);
 		newReviewee.reviews[0].isAuthor = true;
 
@@ -121,19 +120,19 @@ class RevieweeService {
 						: -1
 				);
 				break;
-    }
+		}
 
-    if (ascending === 'false') {
-      reviewees.reverse();
-    }
+		if (ascending === 'false') {
+			reviewees.reverse();
+		}
 
-    const totalReviewees = reviewees.length;
+		const totalReviewees = reviewees.length;
 		reviewees = reviewees.slice(index, index + limit);
 
 		return { reviewees, totalReviewees };
 	}
 
-	async createReview(revieweeId, reviewData) {
+	async createReview(authorId, revieweeId, reviewData) {
 		let newReview = {
 			...reviewData,
 			createdAt: Date.now(),
@@ -141,13 +140,9 @@ class RevieweeService {
 			helpfulUpVote: 0,
 		};
 
-		const reviewee = await Reviewee.findByIdAndUpdate(
-			revieweeId,
-			{ $push: { reviews: newReview } },
-			{ new: true }
-		);
-
+		const reviewee = await Reviewee.createReview(revieweeId, newReview);
 		let foundRevieweeId;
+
 		if (reviewee) {
 			foundRevieweeId = reviewee._id;
 			newReview = this.formatReviewObject(reviewee.reviews.pop(), true);
@@ -159,12 +154,13 @@ class RevieweeService {
 				overallRating: newReview.overallRating,
 			};
 			recentService.updateMostRecents('review', mostRecentReview);
+			userService.addOutgoingReview(authorId, reviewee._id, newReview.reviewId);
 		} else {
 			foundRevieweeId = null;
 			newReview = null;
 		}
 
-		return { revieweeId: foundRevieweeId, newReview };
+		return { foundRevieweeId, newReview };
 	}
 
 	async getRevieweeById(revieweeId, authenticated = true, userId = undefined) {
@@ -176,9 +172,8 @@ class RevieweeService {
 				// limit returned review
 				reviewee.reviews = limitReviewCount(reviewee.reviews, REVIEW_LIMIT);
 			}
+			schoolService.addVisitedCount(reviewee.school);
 		}
-
-		schoolService.addVisitedCount(reviewee.school);
 
 		return { reviewee };
 	}
