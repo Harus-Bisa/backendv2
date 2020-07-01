@@ -1,16 +1,19 @@
 const School = require('../models/School');
 
 class SchoolService {
-	// return Object.freeze({
-	// 	getSchoolsByName,
-	// 	addRevieweeCount,
-	// 	addVisitedCount,
-	// 	getMostPopular,
-	// });
+	async createSchool(schoolName) {
+		let school = await School.createSchool(schoolName);
+		school = school.toObject();
+
+		delete school._id;
+		delete school.__v;
+
+		return school;
+	}
 
 	async getSchoolsByName(school) {
-		const schoolQuery = school ? `(?i)(^| )${school}.*` : '.*';
-		let schools = await School.find({ name: { $regex: schoolQuery } });
+		let schools = await School.getSchoolsByName(school);
+
 		schools = schools.map((school) => {
 			return school.name;
 		});
@@ -20,35 +23,30 @@ class SchoolService {
 
 	async addRevieweeCount(schoolName) {
 		// create if not exist (use upsert)
-		let newSchool = await School.findOneAndUpdate(
-			{ name: schoolName },
-			{ name: schoolName, $inc: { revieweeCount: 1 } },
-			{
-				upsert: true,
-				useFindAndModify: false,
-			}
-		);
+		let newSchool = await School.addRevieweeCountByName(schoolName);
 		return { newSchool };
 	}
 
 	async addVisitedCount(schoolName) {
-		// create if not exist (use upsert)
-		let newSchool = await School.findOneAndUpdate(
-			{ name: schoolName },
-			{ name: schoolName, $inc: { visitedCount: 1 } },
-			{
-				upsert: true,
-				useFindAndModify: false,
-			}
-		);
+		let newSchool = await School.addVisitedCountByName(schoolName);
 		return { newSchool };
 	}
 
-	async getMostPopular() {
-		// school that is most visited is the most popular
-		let schools = await School.find()
-			.sort({ visitedCount: -1 })
-			.limit(10); // get 10 most popular
+	async getMostPopularByVisited(limit = 10) {
+		limit = parseInt(limit);
+		let schools = await School.getMostPopularByVisited(limit);
+
+		schools = schools.map((school) => {
+			return school.name;
+		});
+
+		return { schools };
+	}
+
+	async getMostPopularByRevieweeCount(limit = 10) {
+		limit = parseInt(limit);
+		let schools = await School.getMostPopularByRevieweeCount(limit);
+
 		schools = schools.map((school) => {
 			return school.name;
 		});

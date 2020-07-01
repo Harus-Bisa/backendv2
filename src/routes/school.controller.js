@@ -7,7 +7,8 @@ const schoolService = new SchoolService();
 
 router.get('/', async (req, res) => {
 	try {
-		const { schools } = await schoolService.getSchoolsByName(req.query.school);
+		const schoolName = req.query.school;
+		const { schools } = await schoolService.getSchoolsByName(schoolName);
 		res.statusMessage = 'Get list of schools matching the query is successful.';
 		return res.status(200).send(schools);
 	} catch (err) {
@@ -20,7 +21,8 @@ router.get('/', async (req, res) => {
 
 router.get('/popular', async (req, res) => {
 	try {
-		const { schools } = await schoolService.getMostPopular();
+		const limit = req.query.limit;
+		const { schools } = await schoolService.getMostPopularByVisited(limit);
 		res.statusMessage = 'Get most popular schools is successful.';
 		return res.status(200).send(schools);
 	} catch (err) {
