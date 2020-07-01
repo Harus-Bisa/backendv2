@@ -123,7 +123,7 @@ describe('Auth endpoints', () => {
     done();
   });
 
-  it('resend verification token for should be successful', async (done) => {
+  it('resend verification token should be successful', async (done) => {
     const res = await request(app)
       .post('/resend')
       .send(userInfo);
