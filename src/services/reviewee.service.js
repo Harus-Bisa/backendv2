@@ -86,7 +86,7 @@ class RevieweeService {
 			}
 
 			return {
-				revieweeId: reviewee._id,
+				revieweeId: reviewee._id.toString(),
 				name: reviewee.name,
 				school: reviewee.school,
 				numberOfReviews: numberOfReviews,
@@ -154,7 +154,7 @@ class RevieweeService {
 		let foundRevieweeId;
 
 		if (reviewee) {
-			foundRevieweeId = reviewee._id;
+			foundRevieweeId = reviewee._id.toString();
 			newReview = this.formatReviewObject(reviewee.reviews.pop(), true);
 
 			const mostRecentReview = {
@@ -340,7 +340,7 @@ class RevieweeService {
 		}
 
 		formattedReviewee = formattedReviewee.toObject();
-		formattedReviewee.revieweeId = formattedReviewee._id;
+		formattedReviewee.revieweeId = formattedReviewee._id.toString();
 		formattedReviewee.numberOfReviews = formattedReviewee.reviews.length;
 		// formattedReviewee.reviews = formattedReviewee.reviews.reverse();
 		formattedReviewee.reviews = this.sortReviewsByAuthor(
@@ -376,7 +376,7 @@ class RevieweeService {
 			return null;
 		}
 		let formattedReview = reviewObject.toObject();
-		formattedReview.reviewId = formattedReview._id;
+		formattedReview.reviewId = formattedReview._id.toString();
 		formattedReview.isAuthor = isAuthor;
 		formattedReview.userVote = userVote;
 		formattedReview.hasReported = hasReported;
