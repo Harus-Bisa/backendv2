@@ -3,7 +3,6 @@ const randomstring = require('randomstring');
 const mongoose = require('mongoose');
 
 const app = require('../../app');
-const User = require('../../models/User');
 const Reviewee = require('../../models/Reviewee');
 const RevieweeService = require('../../services/reviewee.service');
 const UserService = require('../../services/user.service');
@@ -88,8 +87,9 @@ describe('Reviewee endpoints', () => {
 	it('create new reviewee with no review should be successful', async (done) => {
 		const revieweeWithNoReview = {
 			name: randomstring.generate(),
-			school: randomstring.generate()
-		}
+			school: randomstring.generate(),
+		};
+
 		const res = await request(app)
 			.post('/reviewees')
 			.set('authorization', 'Bearer ' + userAuthenticationToken)
@@ -164,7 +164,7 @@ describe('Reviewee endpoints', () => {
 	});
 
 	it('new review should be added to the user outgoing review list', async (done) => {
-		const user = await User.findById(userId);
+		const {user} = await userService.getUserById(userId);
 		const userOutgoingReviews = user.outgoingReviews;
 		const lastOutgoingReview =
 			userOutgoingReviews[userOutgoingReviews.length - 1];
@@ -305,7 +305,7 @@ describe('Reviewee endpoints', () => {
 		done();
 	});
 
-	it('query reviewees with negative index', async (done) => {
+	it('query reviewees with negative index should 0 reviewees', async (done) => {
 		const res = await request(app)
 			.get('/reviewees')
 			.query({ index: -1 });
@@ -427,12 +427,13 @@ describe('Reviewee endpoints', () => {
 	});
 
 	it('create new review should be successful', async (done) => {
-		const reviewee = await Reviewee.create({
-			name: randomstring.generate(),
-			school: randomstring.generate(),
-		});
+		const { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
+
 		const res = await request(app)
-			.post('/reviewees/' + reviewee._id + '/reviews')
+			.post('/reviewees/' + newReviewee.revieweeId + '/reviews')
 			.set('authorization', 'Bearer ' + userAuthenticationToken)
 			.send(newReview);
 
@@ -454,13 +455,13 @@ describe('Reviewee endpoints', () => {
 		expect(res.body.hasReported).toBe(false);
 		expect(res.body.userVote).toBe(null);
 
-		const user = await User.findById(userId);
+		const {user} = await userService.getUserById(userId);
 		const userOutgoingReviews = user.outgoingReviews;
 		const lastOutgoingReview =
 			userOutgoingReviews[userOutgoingReviews.length - 1];
 
 		expect(lastOutgoingReview.revieweeId.toString()).toBe(
-			reviewee._id.toString()
+			newReviewee.revieweeId
 		);
 		expect(lastOutgoingReview.reviewId.toString()).toBe(res.body.reviewId);
 		done();
@@ -499,14 +500,18 @@ describe('Reviewee endpoints', () => {
 	});
 
 	it('vote review for non existent review should fail', async (done) => {
-		const reviewee = await Reviewee.create({
-			name: randomstring.generate(),
-			school: randomstring.generate(),
-		});
+		const { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
 		const randomReviewId = mongoose.Types.ObjectId();
 		const res = await request(app)
 			.post(
-				'/reviewees/' + reviewee._id + '/reviews/' + randomReviewId + '/upVote'
+				'/reviewees/' +
+					newReviewee.revieweeId +
+					'/reviews/' +
+					randomReviewId +
+					'/upVote'
 			)
 			.set('authorization', 'Bearer ' + userAuthenticationToken);
 
@@ -709,19 +714,22 @@ describe('Reviewee endpoints', () => {
 	});
 
 	it('get reviews should be succesful', async (done) => {
-		const reviewee = await Reviewee.create({});
+		const { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
 		const authorId = mongoose.Types.ObjectId();
 		const totalReviews = 5;
 		for (i = 0; i < totalReviews; i++) {
-			await revieweeService.createReview(authorId, reviewee._id, {});
+			await revieweeService.createReview(authorId, newReviewee.revieweeId, {});
 		}
 
 		const res = await request(app)
-			.get('/reviewees/' + reviewee._id)
+			.get('/reviewees/' + newReviewee.revieweeId)
 			.set('authorization', 'Bearer ' + userAuthenticationToken);
 
 		expect(res.statusCode).toBe(200);
-		expect(res.body.revieweeId).toBe(reviewee._id.toString());
+		expect(res.body.revieweeId).toBe(newReviewee.revieweeId.toString());
 		expect(res.body.reviews.length).toBe(totalReviews);
 		expect(res.body.numberOfReviews).toBe(totalReviews);
 		done();
@@ -729,14 +737,22 @@ describe('Reviewee endpoints', () => {
 
 	it('get reviews without authenticated should be limited', async (done) => {
 		const totalReviewsLimit = 3;
-		const reviewee = await Reviewee.create({});
-		const authorId = mongoose.Types.ObjectId();
+		const { newReviewee } = await revieweeService.createRevieweeWithReview(
+			userId,
+			{}
+		);
+		const randomAuthorId = mongoose.Types.ObjectId();
 		const totalReviews = 5;
+
 		for (i = 0; i < totalReviews; i++) {
-			await revieweeService.createReview(authorId, reviewee._id, {});
+			await revieweeService.createReview(
+				randomAuthorId,
+				newReviewee.revieweeId,
+				{}
+			);
 		}
 
-		const res = await request(app).get('/reviewees/' + reviewee._id);
+		const res = await request(app).get('/reviewees/' + newReviewee.revieweeId);
 
 		expect(res.statusCode).toBe(200);
 		expect(res.body.reviews.length).toBe(totalReviewsLimit);
@@ -745,31 +761,39 @@ describe('Reviewee endpoints', () => {
 	});
 
 	it('isAuthor flag in review should be correct', async (done) => {
-		const reviewee = await Reviewee.create({});
 		const randomAuthorId = mongoose.Types.ObjectId();
+		let { newReviewee } = await revieweeService.createRevieweeWithReview(
+			randomAuthorId,
+			{
+				review: 'random review',
+			}
+		);
 
-		await revieweeService.createReview(randomAuthorId, reviewee._id, {});
+		await revieweeService.createReview(
+			randomAuthorId,
+			newReviewee.reviewId,
+			{}
+		);
 
 		// without authentication token
-		let res = await request(app).get('/reviewees/' + reviewee._id);
+		let res = await request(app).get('/reviewees/' + newReviewee.revieweeId);
 		expect(res.statusCode).toBe(200);
 		expect(res.body.reviews[0].isAuthor).toBe(false);
 
 		// with authentication token but not author
 		res = await request(app)
-			.get('/reviewees/' + reviewee._id)
+			.get('/reviewees/' + newReviewee.revieweeId)
 			.set('authorization', 'Bearer ' + userAuthenticationToken);
 		expect(res.statusCode).toBe(200);
 		expect(res.body.reviews[0].isAuthor).toBe(false);
 
 		// with authentication token and is author
-		res = await request(app)
-			.post('/reviewees/' + reviewee._id + '/reviews')
-			.set('authorization', 'Bearer ' + userAuthenticationToken)
-			.send({});
+		({ newReviewee } = await revieweeService.createRevieweeWithReview(userId, {
+			review: 'random review',
+		}));
 
 		res = await request(app)
-			.get('/reviewees/' + reviewee._id)
+			.get('/reviewees/' + newReviewee.revieweeId)
 			.set('authorization', 'Bearer ' + userAuthenticationToken);
 
 		// review with isAuthor == true is in the beginning by business logic
@@ -779,33 +803,37 @@ describe('Reviewee endpoints', () => {
 	});
 
 	it('hasReported flag in review should be correct', async (done) => {
-		const reviewee = await Reviewee.create({});
 		const randomAuthorId = mongoose.Types.ObjectId();
+		let {
+			newReviewee,
+		} = await revieweeService.createRevieweeWithReview(randomAuthorId, {
+			review: 'random review',
+		});
 		const { foundRevieweeId, newReview } = await revieweeService.createReview(
 			randomAuthorId,
-			reviewee._id,
+			newReviewee.revieweeId,
 			{}
 		);
 
 		// without authentication token
-		let res = await request(app).get('/reviewees/' + reviewee._id);
+		let res = await request(app).get('/reviewees/' + newReviewee.revieweeId);
 		expect(res.statusCode).toBe(200);
 		expect(res.body.reviews[0].hasReported).toBe(false);
 
 		// with authentication token but hasn't reported review
 		res = await request(app)
-			.get('/reviewees/' + reviewee._id)
+			.get('/reviewees/' + newReviewee.revieweeId)
 			.set('authorization', 'Bearer ' + userAuthenticationToken);
 		expect(res.body.reviews[0].hasReported).toBe(false);
 
 		// with authentication token and reported review
 		await userService.addReportedReview(
 			userId,
-			reviewee._id,
+			newReviewee.revieweeId,
 			newReview.reviewId
 		);
 		res = await request(app)
-			.get('/reviewees/' + reviewee._id)
+			.get('/reviewees/' + newReviewee.revieweeId)
 			.set('authorization', 'Bearer ' + userAuthenticationToken);
 		expect(res.body.reviews[0].hasReported).toBe(true);
 
