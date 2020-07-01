@@ -491,7 +491,7 @@ describe('Reviewee endpoints', () => {
 	it('vote up review should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{}
+			{review: 'random review'}
 		);
 		let reviewee = newReviewee;
 
@@ -520,7 +520,7 @@ describe('Reviewee endpoints', () => {
 	it('vote down review should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{}
+			{review: 'random review'}
 		);
 		let reviewee = newReviewee;
 
@@ -549,7 +549,7 @@ describe('Reviewee endpoints', () => {
 	it('cancel up vote should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{}
+			{review: 'random review'}
 		);
 		let reviewee = newReviewee;
 		firstReview = reviewee.reviews[0];
@@ -581,7 +581,7 @@ describe('Reviewee endpoints', () => {
 	it('cancel down vote should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{}
+			{review: 'random review'}
 		);
 		let reviewee = newReviewee;
 		firstReview = reviewee.reviews[0];
@@ -613,7 +613,7 @@ describe('Reviewee endpoints', () => {
 	it('switching up vote to down vote should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{}
+			{review: 'random review'}
 		);
 		let reviewee = newReviewee;
 		firstReview = reviewee.reviews[0];
@@ -645,7 +645,7 @@ describe('Reviewee endpoints', () => {
 	it('switching down vote to up vote should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{}
+			{review: 'random review'}
 		);
 		let reviewee = newReviewee;
 		firstReview = reviewee.reviews[0];

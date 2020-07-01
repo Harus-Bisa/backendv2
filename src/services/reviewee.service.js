@@ -9,21 +9,24 @@ const recentService = new RecentService();
 
 class RevieweeService {
 	async createRevieweeWithReview(authorId, revieweeData) {
-		const review = {
-			review: revieweeData.review,
-			courseName: revieweeData.courseName,
-			overallRating: revieweeData.overallRating,
-			recommendationRating: revieweeData.recommendationRating,
-			difficultyRating: revieweeData.difficultyRating,
-			yearTaken: revieweeData.yearTaken,
-			grade: revieweeData.grade,
-			tags: revieweeData.tags,
-			textbookRequired: revieweeData.textbookRequired,
-			teachingStyles: revieweeData.teachingStyles,
-			helpfulUpVote: 0,
-			helpfulDownVote: 0,
-			createdAt: Date.now(),
-		};
+		let review = undefined;
+		if (revieweeData.review) {
+			review = {
+				review: revieweeData.review,
+				courseName: revieweeData.courseName,
+				overallRating: revieweeData.overallRating,
+				recommendationRating: revieweeData.recommendationRating,
+				difficultyRating: revieweeData.difficultyRating,
+				yearTaken: revieweeData.yearTaken,
+				grade: revieweeData.grade,
+				tags: revieweeData.tags,
+				textbookRequired: revieweeData.textbookRequired,
+				teachingStyles: revieweeData.teachingStyles,
+				helpfulUpVote: 0,
+				helpfulDownVote: 0,
+				createdAt: Date.now(),
+			};
+		}
 
 		let newReviewee = await Reviewee.createReviewee(
 			revieweeData.name,
@@ -32,8 +35,16 @@ class RevieweeService {
 		);
 
 		newReviewee = await this.formatRevieweeObject(newReviewee);
-		newReviewee.reviews[0].isAuthor = true;
 
+		if (review) {
+			newReviewee.reviews[0].isAuthor = true;
+			userService.addOutgoingReview(
+				authorId,
+				newReviewee.revieweeId,
+				newReviewee.reviews[0].reviewId
+			);
+		}
+		
 		const newReview = {
 			name: revieweeData.name,
 			school: revieweeData.school,
@@ -43,11 +54,6 @@ class RevieweeService {
 
 		recentService.updateMostRecents('review', newReview);
 		schoolService.addRevieweeCount(revieweeData.school);
-		userService.addOutgoingReview(
-			authorId,
-			newReviewee.revieweeId,
-			newReviewee.reviews[0].reviewId
-		);
 
 		return { newReviewee };
 	}
