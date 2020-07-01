@@ -72,11 +72,11 @@ class RevieweeService {
 		reviewees = reviewees.map((reviewee) => {
 			let sumOverallRating = 0;
 			const numberOfReviews = reviewee.reviews.length;
-      let countedOverallRating = 0;
+			let countedOverallRating = 0;
 
 			for (let i = 0; i < numberOfReviews; i++) {
-        sumOverallRating += reviewee.reviews[i].overallRating;
-        countedOverallRating += 1;
+				sumOverallRating += reviewee.reviews[i].overallRating;
+				countedOverallRating += 1;
 			}
 
 			return {
@@ -85,7 +85,9 @@ class RevieweeService {
 				school: reviewee.school,
 				numberOfReviews: numberOfReviews,
 				overallRating:
-					countedOverallRating > 0 ? sumOverallRating / countedOverallRating : 0,
+					countedOverallRating > 0
+						? sumOverallRating / countedOverallRating
+						: 0,
 			};
 		});
 
@@ -273,6 +275,12 @@ class RevieweeService {
 		let countedOverallRating = 0;
 		let countedDifficultyRating = 0;
 		let countedRecommendationRating = 0;
+
+		let user;
+		if (userId) {
+			({ user } = await userService.getUserById(userId));
+		}
+
 		// accumulate reviews rating
 		for (let i = 0; i < formattedReviewee.reviews.length; i++) {
 			if (formattedReviewee.reviews[i].overallRating !== undefined) {
@@ -295,29 +303,26 @@ class RevieweeService {
 			let userVote;
 			let hasReported = false;
 
-			if (userId) {
-				const { user } = await userService.getUserById(userId);
-				if (user) {
-					//make sure user exists
-					const curUserVote = user.helpfulnessVotes.find(
-						(vote) =>
-							revieweeObject._id.equals(vote.revieweeId) &&
-							formattedReviewee.reviews[i]._id.equals(vote.reviewId)
-					);
-					userVote = curUserVote ? curUserVote.vote : null;
+			if (user) {
+				//make sure user exists
+				const curUserVote = user.helpfulnessVotes.find(
+					(vote) =>
+						revieweeObject._id.equals(vote.revieweeId) &&
+						formattedReviewee.reviews[i]._id.equals(vote.reviewId)
+				);
+				userVote = curUserVote ? curUserVote.vote : null;
 
-					isAuthor = user.outgoingReviews.some(
-						(review) =>
-							revieweeObject._id.equals(review.revieweeId) &&
-							formattedReviewee.reviews[i]._id.equals(review.reviewId)
-					);
+				isAuthor = user.outgoingReviews.some(
+					(review) =>
+						revieweeObject._id.equals(review.revieweeId) &&
+						formattedReviewee.reviews[i]._id.equals(review.reviewId)
+				);
 
-					hasReported = user.reportedReviews.some(
-						(review) =>
-							revieweeObject._id.equals(review.revieweeId) &&
-							formattedReviewee.reviews[i]._id.equals(review.reviewId)
-					);
-				}
+				hasReported = user.reportedReviews.some(
+					(review) =>
+						revieweeObject._id.equals(review.revieweeId) &&
+						formattedReviewee.reviews[i]._id.equals(review.reviewId)
+				);
 			}
 
 			formattedReviewee.reviews[i] = this.formatReviewObject(
@@ -337,13 +342,13 @@ class RevieweeService {
 		);
 
 		formattedReviewee.overallRating =
-      countedOverallRating > 0 ? sumOverallRating / countedOverallRating : 0;
-      
+			countedOverallRating > 0 ? sumOverallRating / countedOverallRating : 0;
+
 		formattedReviewee.recommendationRating =
 			countedRecommendationRating > 0
 				? sumRecommendationRating / countedRecommendationRating
-        : 0;
-        
+				: 0;
+
 		formattedReviewee.difficultyRating =
 			countedDifficultyRating > 0
 				? sumDifficultyRating / countedDifficultyRating
@@ -383,7 +388,7 @@ class RevieweeService {
 	}
 
 	sortReviewsByAuthor(reviews) {
-    // put all reviews with isAuthor == true to the beginning of array
+		// put all reviews with isAuthor == true to the beginning of array
 		reviews = reviews.reverse();
 
 		let isAuthorReviews = [];
