@@ -8,6 +8,6 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  // await databaseHelper.truncate();
+  await databaseHelper.truncate();
   await databaseHelper.disconnect();
 });

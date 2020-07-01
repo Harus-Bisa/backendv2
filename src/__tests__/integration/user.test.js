@@ -1,132 +1,62 @@
 const request = require('supertest');
-const jwt = require('jsonwebtoken');
 const app = require('../../app');
-const config = require('../../config');
 const mongoose = require('mongoose');
-const sgMail = require('@sendgrid/mail');
-const User = require('../../models/User');
+const createUserHelper = require('../helper/createUser');
 
-jest.mock('@sendgrid/mail');
-
-const userEmail = mongoose.Types.ObjectId() + '@gmail.com';
-const userPassword = mongoose.Types.ObjectId();
-var userVerificationToken;
-var userAuthenticationToken;
+var userEmail;
+var userPassword;
 var userId;
+var userAuthenticationToken;
 
-var mailApiCalled = 0;
+beforeAll(async (done) => {
+	({
+		userEmail,
+		userPassword,
+		userId,
+		userAuthenticationToken,
+	} = await createUserHelper());
 
-const userInfo = {
-  email: userEmail,
-  password: userPassword,
-};
-
-const secondUserEmail = mongoose.Types.ObjectId();
-const secondUserInfo = {
-  email: secondUserEmail,
-  password: 'foo',
-};
-var secondUserAuthenticationToken;
+	done();
+});
 
 describe('User endpoints', () => {
-  it('get user without authenticated should fail', async (done) => {
-    const res = await request(app).get('/users/' + userId);
+	it('get user without authenticated should fail', async (done) => {
+		const res = await request(app).get('/users/' + userId);
 
-    expect(res.statusCode).toEqual(401);
-    done();
-  });
+		expect(res.statusCode).toEqual(401);
+		done();
+	});
 
-  it('signup should be successful', async (done) => {
-    const res = await request(app)
-      .post('/signup')
-      .send(userInfo);
+	it('get non existent user should fail', async (done) => {
+		const randomId = mongoose.Types.ObjectId();
+		const res = await request(app)
+			.get('/users/' + randomId)
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
 
-    expect(res.statusCode).toEqual(201);
-    done();
-  });
+		expect(res.statusCode).toBe(404);
+		done();
+	});
 
-  it('verification email should be sent correctly', async (done) => {
-    setTimeout(() => {
-      mailApiCalled += 1;
-      expect(sgMail.send).toHaveBeenCalledTimes(mailApiCalled);
-      expect(sgMail.send.mock.calls[mailApiCalled - 1][0].to).toBe(userEmail);
+	it('get user should be successful', async (done) => {
+		const res = await request(app)
+			.get('/users/' + userId)
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
 
-      userVerificationToken = sgMail.send.mock.calls[mailApiCalled - 1][0].text
-        .split('/')
-        .slice(-1)[0];
-      done();
-    }, 500);
-  });
+		expect(res.statusCode).toBe(200);
+		expect(res.body.userId).toBe(userId);
+		expect(res.body.password).not.toBeDefined();
+		done();
+	});
 
-  it('verify user should be successful', async (done) => {
-    const res = await request(app).get(
-      '/verification/' + userVerificationToken
-    );
+	it('get user with wrong token should fail', async (done) => {
+		let secondUser = await createUserHelper();
+		let secondUserAuthenticationToken = secondUser.userAuthenticationToken;
 
-    expect(res.statusCode).toEqual(302);
-    done();
-  });
+		const res = await request(app)
+			.get('/users/' + userId)
+			.set('authorization', 'Bearer ' + secondUserAuthenticationToken);
 
-  it('login after verified should be successful', async (done) => {
-    const res = await request(app)
-      .post('/login')
-      .send(userInfo);
-
-    expect(res.statusCode).toEqual(200);
-    expect(res.body.userId).toBeDefined();
-    expect(res.body.token).toBeDefined();
-
-    userAuthenticationToken = res.body.token;
-    userId = res.body.userId;
-
-    done();
-  });
-
-  it('get non existent user should fail', async (done) => {
-    const randomId = mongoose.Types.ObjectId();
-    const res = await request(app)
-      .get('/users/' + randomId)
-      .set('authorization', 'Bearer ' + userAuthenticationToken);
-
-    expect(res.statusCode).toBe(404);
-    done();
-  });
-
-  it('get user should be successful', async (done) => {
-    const res = await request(app)
-      .get('/users/' + userId)
-      .set('authorization', 'Bearer ' + userAuthenticationToken);
-
-    expect(res.statusCode).toBe(200);
-    expect(res.body.userId).toBe(userId);
-    expect(res.body.password).not.toBeDefined();
-    done();
-  });
-
-  it('signup second user should be successful', async (done) => {
-    const res = await request(app)
-      .post('/signup')
-      .send(secondUserInfo);
-
-    expect(res.statusCode).toEqual(201);
-
-    const secondUser = await User.findByEmail(secondUserEmail);
-    const tokenPayload = {
-      userId: secondUser.userId,
-    };
-    secondUserAuthenticationToken = jwt.sign(tokenPayload, config.jwtSecret, {
-      expiresIn: 86400,
-    });
-
-    done();
-  });
-
-  it('get user with wrong token should fail', async (done) => {
-    const res = await request(app)
-      .get('/users/' + userId)
-      .set('authorization', 'Bearer ' + secondUserAuthenticationToken);
-
-    expect(res.statusCode).toBe(401);
-    done();
-  });
+		expect(res.statusCode).toBe(401);
+		done();
+	});
 });

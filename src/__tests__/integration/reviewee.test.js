@@ -1,60 +1,34 @@
 const request = require('supertest');
 const randomstring = require('randomstring');
+const mongoose = require('mongoose');
+
 const app = require('../../app');
-const sgMail = require('@sendgrid/mail');
 const User = require('../../models/User');
 const Reviewee = require('../../models/Reviewee');
 const RevieweeService = require('../../services/reviewee.service');
 const UserService = require('../../services/user.service');
-const mongoose = require('mongoose');
+const createUserHelper = require('../helper/createUser');
 
 const revieweeService = new RevieweeService();
 const userService = new UserService();
-jest.mock('@sendgrid/mail');
-
-const userEmail = randomstring.generate() + '@gmail.com';
-const userPassword = randomstring.generate();
-var userVerificationToken;
-var userAuthenticationToken;
-var userId;
 
 var revieweeId;
 var reviewId;
 
-const userInfo = {
-	email: userEmail,
-	password: userPassword,
-};
-
-const name = randomstring.generate();
-const school = randomstring.generate();
-const review = randomstring.generate();
-const courseName = randomstring.generate();
-const overallRating = 4.3;
-const recommendationRating = 3.5;
-const difficultyRating = 2.6;
-const yearTaken = 2020;
-const grade = randomstring.generate();
-const tags = [randomstring.generate(), randomstring.generate()];
-const textbookRequired = true;
-const teachingStyles = [randomstring.generate()];
-
 const revieweeData = {
-	name,
-	review,
-	school,
-	courseName,
-	overallRating,
-	recommendationRating,
-	difficultyRating,
-	yearTaken,
-	grade,
-	tags,
-	textbookRequired,
-	teachingStyles,
+	name: randomstring.generate(),
+	school: randomstring.generate(),
+	review: randomstring.generate(),
+	courseName: randomstring.generate(),
+	overallRating: 4.3,
+	recommendationRating: 3.5,
+	difficultyRating: 2.6,
+	yearTaken: 2020,
+	grade: randomstring.generate(),
+	tags: [randomstring.generate(), randomstring.generate()],
+	textbookRequired: true,
+	teachingStyles: [randomstring.generate()],
 };
-
-var mailApiCalled = 0;
 
 const fakeReviewees = [
 	{
@@ -85,6 +59,22 @@ const newReview = {
 	teachingStyles: [randomstring.generate()],
 };
 
+var userEmail;
+var userPassword;
+var userId;
+var userAuthenticationToken;
+
+beforeAll(async (done) => {
+	({
+		userEmail,
+		userPassword,
+		userId,
+		userAuthenticationToken,
+	} = await createUserHelper());
+
+	done();
+});
+
 describe('Reviewee endpoints', () => {
 	it('creating new reviewee without authenticated should fail', async (done) => {
 		const res = await request(app)
@@ -92,52 +82,6 @@ describe('Reviewee endpoints', () => {
 			.send(revieweeData);
 
 		expect(res.statusCode).toEqual(401);
-		done();
-	});
-
-	it('signup should be successful', async (done) => {
-		const res = await request(app)
-			.post('/signup')
-			.send(userInfo);
-
-		expect(res.statusCode).toEqual(201);
-		done();
-	});
-
-	it('verification email should be sent correctly', async (done) => {
-		setTimeout(() => {
-			mailApiCalled += 1;
-			expect(sgMail.send).toHaveBeenCalledTimes(mailApiCalled);
-			expect(sgMail.send.mock.calls[mailApiCalled - 1][0].to).toBe(userEmail);
-
-			userVerificationToken = sgMail.send.mock.calls[mailApiCalled - 1][0].text
-				.split('/')
-				.slice(-1)[0];
-			done();
-		}, 500);
-	});
-
-	it('verify user should be successful', async (done) => {
-		const res = await request(app).get(
-			'/verification/' + userVerificationToken
-		);
-
-		expect(res.statusCode).toEqual(302);
-		done();
-	});
-
-	it('login after verified should be successful', async (done) => {
-		const res = await request(app)
-			.post('/login')
-			.send(userInfo);
-
-		expect(res.statusCode).toEqual(200);
-		expect(res.body.userId).toBeDefined();
-		expect(res.body.token).toBeDefined();
-
-		userAuthenticationToken = res.body.token;
-		userId = res.body.userId;
-
 		done();
 	});
 
@@ -155,27 +99,37 @@ describe('Reviewee endpoints', () => {
 		expect(res.body.__v).not.toBeDefined();
 		expect(res.body._id).not.toBeDefined();
 		expect(res.body.revieweeId).toBeDefined();
-		expect(res.body.name).toBe(name);
-		expect(res.body.school).toBe(school);
+		expect(res.body.name).toBe(revieweeData.name);
+		expect(res.body.school).toBe(revieweeData.school);
 		expect(Array.isArray(res.body.reviews)).toBe(true);
 		expect(res.body.numberOfReviews).toBe(1);
-		expect(res.body.overallRating).toBeDefined();
-		expect(res.body.recommendationRating).toBeDefined();
-		expect(res.body.difficultyRating).toBeDefined();
+		expect(res.body.overallRating).toBe(revieweeData.overallRating);
+		expect(res.body.recommendationRating).toBe(
+			revieweeData.recommendationRating
+		);
+		expect(res.body.difficultyRating).toBe(revieweeData.difficultyRating);
 
 		// first review
-		expect(res.body.reviews[0].review).toBe(review);
-		expect(res.body.reviews[0].courseName).toBe(courseName);
-		expect(res.body.reviews[0].overallRating).toBe(overallRating);
-		expect(res.body.reviews[0].recommendationRating).toBe(recommendationRating);
-		expect(res.body.reviews[0].difficultyRating).toBe(difficultyRating);
-		expect(res.body.reviews[0].yearTaken).toBe(yearTaken);
-		expect(res.body.reviews[0].grade).toBe(grade);
-		expect(res.body.reviews[0].textbookRequired).toBe(textbookRequired);
+		expect(res.body.reviews[0].review).toBe(revieweeData.review);
+		expect(res.body.reviews[0].courseName).toBe(revieweeData.courseName);
+		expect(res.body.reviews[0].overallRating).toBe(revieweeData.overallRating);
+		expect(res.body.reviews[0].recommendationRating).toBe(
+			revieweeData.recommendationRating
+		);
+		expect(res.body.reviews[0].difficultyRating).toBe(
+			revieweeData.difficultyRating
+		);
+		expect(res.body.reviews[0].yearTaken).toBe(revieweeData.yearTaken);
+		expect(res.body.reviews[0].grade).toBe(revieweeData.grade);
+		expect(res.body.reviews[0].textbookRequired).toBe(
+			revieweeData.textbookRequired
+		);
 		expect(res.body.reviews[0].helpfulUpVote).toBe(0);
 		expect(res.body.reviews[0].helpfulDownVote).toBe(0);
-		expect(res.body.reviews[0].tags).toEqual(tags);
-		expect(res.body.reviews[0].teachingStyles).toEqual(teachingStyles);
+		expect(res.body.reviews[0].tags).toEqual(revieweeData.tags);
+		expect(res.body.reviews[0].teachingStyles).toEqual(
+			revieweeData.teachingStyles
+		);
 		expect(res.body.reviews[0].isAuthor).toBe(true);
 		expect(res.body.reviews[0].hasReported).toBe(false);
 		expect(res.body.reviews[0].userVote).toBe(null);
@@ -770,57 +724,65 @@ describe('Reviewee endpoints', () => {
 
 		await revieweeService.createReview(randomAuthorId, reviewee._id, {});
 
-    // without authentication token
+		// without authentication token
 		let res = await request(app).get('/reviewees/' + reviewee._id);
-    expect(res.statusCode).toBe(200);
-    expect(res.body.reviews[0].isAuthor).toBe(false);
+		expect(res.statusCode).toBe(200);
+		expect(res.body.reviews[0].isAuthor).toBe(false);
 
-    // with authentication token but not author
-    res = await request(app)
+		// with authentication token but not author
+		res = await request(app)
 			.get('/reviewees/' + reviewee._id)
 			.set('authorization', 'Bearer ' + userAuthenticationToken);
-    expect(res.statusCode).toBe(200);
-    expect(res.body.reviews[0].isAuthor).toBe(false);
+		expect(res.statusCode).toBe(200);
+		expect(res.body.reviews[0].isAuthor).toBe(false);
 
-    // with authentication token and is author
-    res = await request(app)
+		// with authentication token and is author
+		res = await request(app)
 			.post('/reviewees/' + reviewee._id + '/reviews')
 			.set('authorization', 'Bearer ' + userAuthenticationToken)
 			.send({});
 
-    res = await request(app)
+		res = await request(app)
 			.get('/reviewees/' + reviewee._id)
-      .set('authorization', 'Bearer ' + userAuthenticationToken);
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
 
-    // review with isAuthor == true is in the beginning by business logic
-    // more on: reviewee.service.js --> sortReviewsByAuthor
-    expect(res.body.reviews[0].isAuthor).toBe(true);
+		// review with isAuthor == true is in the beginning by business logic
+		// more on: reviewee.service.js --> sortReviewsByAuthor
+		expect(res.body.reviews[0].isAuthor).toBe(true);
 		done();
 	});
 
 	it('hasReported flag in review should be correct', async (done) => {
-    const reviewee = await Reviewee.create({});
+		const reviewee = await Reviewee.create({});
 		const randomAuthorId = mongoose.Types.ObjectId();
-		const {foundRevieweeId, newReview} = await revieweeService.createReview(randomAuthorId, reviewee._id, {});
+		const { foundRevieweeId, newReview } = await revieweeService.createReview(
+			randomAuthorId,
+			reviewee._id,
+			{}
+		);
 
-    // without authentication token
+		// without authentication token
 		let res = await request(app).get('/reviewees/' + reviewee._id);
-    expect(res.statusCode).toBe(200);
-    expect(res.body.reviews[0].hasReported).toBe(false);
+		expect(res.statusCode).toBe(200);
+		expect(res.body.reviews[0].hasReported).toBe(false);
 
-    // with authentication token but hasn't reported review
-    res = await request(app)
+		// with authentication token but hasn't reported review
+		res = await request(app)
 			.get('/reviewees/' + reviewee._id)
-      .set('authorization', 'Bearer ' + userAuthenticationToken);
-    expect(res.body.reviews[0].hasReported).toBe(false);
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
+		expect(res.body.reviews[0].hasReported).toBe(false);
 
-    // with authentication token and reported review
-    await userService.addReportedReview(userId, reviewee._id, newReview.reviewId);
-    res = await request(app)
+		// with authentication token and reported review
+		await userService.addReportedReview(
+			userId,
+			reviewee._id,
+			newReview.reviewId
+		);
+		res = await request(app)
 			.get('/reviewees/' + reviewee._id)
-      .set('authorization', 'Bearer ' + userAuthenticationToken);
-    expect(res.body.reviews[0].hasReported).toBe(true);
+			.set('authorization', 'Bearer ' + userAuthenticationToken);
+		expect(res.body.reviews[0].hasReported).toBe(true);
 
-	  done();
+		done();
 	});
 });
