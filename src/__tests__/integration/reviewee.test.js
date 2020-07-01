@@ -85,7 +85,33 @@ describe('Reviewee endpoints', () => {
 		done();
 	});
 
-	it('create new review for new reviewee should be successful', async (done) => {
+	it('create new reviewee with no review should be successful', async (done) => {
+		const revieweeWithNoReview = {
+			name: randomstring.generate(),
+			school: randomstring.generate()
+		}
+		const res = await request(app)
+			.post('/reviewees')
+			.set('authorization', 'Bearer ' + userAuthenticationToken)
+			.send(revieweeWithNoReview);
+
+		expect(res.statusCode).toBe(201);
+
+		expect(res.body.__v).not.toBeDefined();
+		expect(res.body._id).not.toBeDefined();
+		expect(res.body.revieweeId).toBeDefined();
+		expect(res.body.name).toBe(revieweeWithNoReview.name);
+		expect(res.body.school).toBe(revieweeWithNoReview.school);
+		expect(Array.isArray(res.body.reviews)).toBe(true);
+		expect(res.body.numberOfReviews).toBe(0);
+		expect(res.body.overallRating).toBe(0);
+		expect(res.body.recommendationRating).toBe(0);
+		expect(res.body.difficultyRating).toBe(0);
+
+		done();
+	});
+
+	it('create new reviewee with one review should be successful', async (done) => {
 		const res = await request(app)
 			.post('/reviewees')
 			.set('authorization', 'Bearer ' + userAuthenticationToken)
@@ -491,7 +517,7 @@ describe('Reviewee endpoints', () => {
 	it('vote up review should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{review: 'random review'}
+			{ review: 'random review' }
 		);
 		let reviewee = newReviewee;
 
@@ -520,7 +546,7 @@ describe('Reviewee endpoints', () => {
 	it('vote down review should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{review: 'random review'}
+			{ review: 'random review' }
 		);
 		let reviewee = newReviewee;
 
@@ -549,7 +575,7 @@ describe('Reviewee endpoints', () => {
 	it('cancel up vote should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{review: 'random review'}
+			{ review: 'random review' }
 		);
 		let reviewee = newReviewee;
 		firstReview = reviewee.reviews[0];
@@ -581,7 +607,7 @@ describe('Reviewee endpoints', () => {
 	it('cancel down vote should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{review: 'random review'}
+			{ review: 'random review' }
 		);
 		let reviewee = newReviewee;
 		firstReview = reviewee.reviews[0];
@@ -613,7 +639,7 @@ describe('Reviewee endpoints', () => {
 	it('switching up vote to down vote should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{review: 'random review'}
+			{ review: 'random review' }
 		);
 		let reviewee = newReviewee;
 		firstReview = reviewee.reviews[0];
@@ -645,7 +671,7 @@ describe('Reviewee endpoints', () => {
 	it('switching down vote to up vote should be successful', async (done) => {
 		let { newReviewee } = await revieweeService.createRevieweeWithReview(
 			userId,
-			{review: 'random review'}
+			{ review: 'random review' }
 		);
 		let reviewee = newReviewee;
 		firstReview = reviewee.reviews[0];
