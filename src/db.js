@@ -13,7 +13,9 @@ const connect = async () => {
 				useUnifiedTopology: true,
 			})
 			.then(() => {
-				console.log('MongoDB is connected to: ', connectUrl);
+        if (process.env.NODE_ENV !== 'test') {
+          console.log('MongoDB is connected to: ', connectUrl);
+        }
 			})
 			.catch((err) => console.log('MongoDB connection error: ' + err.message));
 	}
