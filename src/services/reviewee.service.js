@@ -132,7 +132,7 @@ class RevieweeService {
 				break;
 		}
 
-		if (ascending === 'false') {
+		if (ascending === false) {
 			reviewees.reverse();
 		}
 

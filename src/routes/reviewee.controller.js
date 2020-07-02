@@ -53,7 +53,15 @@ router.get('/', async (req, res) => {
 		const index = req.query.index;
 		const limit = req.query.limit;
 		const sortBy = req.query.sortBy;
-		const ascending = req.query.ascending;
+		let ascending = req.query.ascending;
+
+		if (ascending && ascending === 'true') {
+			ascending = true;
+		} else if (ascending && ascending === 'false') {
+			ascending = false;
+		} else {
+			ascending = undefined;
+		}
 
 		const {
 			reviewees,
