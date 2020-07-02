@@ -30,7 +30,7 @@ schoolSchema.statics.getMostPopularByRevieweeCount = function(limit) {
 		.limit(limit);
 };
 
-schoolSchema.statics.addVisitedCountByName = function (schoolName) {
+schoolSchema.statics.addVisitedCountByName = function(schoolName) {
 	return this.findOneAndUpdate(
 		{ name: schoolName },
 		{ name: schoolName, $inc: { visitedCount: 1 } },
@@ -38,9 +38,9 @@ schoolSchema.statics.addVisitedCountByName = function (schoolName) {
 			upsert: true,
 		}
 	);
-}
+};
 
-schoolSchema.statics.addRevieweeCountByName = function (schoolName) {
+schoolSchema.statics.addRevieweeCountByName = function(schoolName) {
 	return this.findOneAndUpdate(
 		{ name: schoolName },
 		{ name: schoolName, $inc: { revieweeCount: 1 } },
@@ -48,6 +48,6 @@ schoolSchema.statics.addRevieweeCountByName = function (schoolName) {
 			upsert: true,
 		}
 	);
-}
+};
 
 module.exports = mongoose.model('School', schoolSchema);

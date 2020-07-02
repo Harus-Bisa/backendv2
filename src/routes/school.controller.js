@@ -27,8 +27,7 @@ router.get('/popular', async (req, res) => {
 		return res.status(200).send(schools);
 	} catch (err) {
 		console.log(err);
-		res.statusMessage =
-			'There was an error getting the most popular schools.';
+		res.statusMessage = 'There was an error getting the most popular schools.';
 		return res.status(500).end();
 	}
 });

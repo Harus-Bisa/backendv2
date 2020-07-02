@@ -44,7 +44,7 @@ class RevieweeService {
 				newReviewee.reviews[0].reviewId
 			);
 		}
-		
+
 		const newReview = {
 			name: revieweeData.name,
 			school: revieweeData.school,

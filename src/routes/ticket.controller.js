@@ -31,8 +31,7 @@ router.post('/reviews/', authentication, async (req, res) => {
 		return res.status(201).send(newTicket);
 	} catch (err) {
 		console.log(err);
-		res.statusMessage =
-			'There was an error flagging the review.';
+		res.statusMessage = 'There was an error flagging the review.';
 		return res.status(500).end();
 	}
 });

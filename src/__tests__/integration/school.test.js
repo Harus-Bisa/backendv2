@@ -63,8 +63,8 @@ describe('School endpoints', () => {
 		const schoolNames = [
 			randomstring.generate(),
 			randomstring.generate(),
-      randomstring.generate(),
-      randomstring.generate(),
+			randomstring.generate(),
+			randomstring.generate(),
 		];
 
 		const expectedResult = [schoolNames[1], schoolNames[2], schoolNames[0]];
@@ -75,25 +75,27 @@ describe('School endpoints', () => {
 			}
 		}
 
-    const limit = expectedResult.length;
-		const res = await request(app).get('/schools/popular').query({limit});
+		const limit = expectedResult.length;
+		const res = await request(app)
+			.get('/schools/popular')
+			.query({ limit });
 		const schools = res.body;
 
 		expect(res.statusCode).toBe(200);
-    expect(Array.isArray(schools)).toBe(true);
-    expect(schools.length).toBe(limit);
+		expect(Array.isArray(schools)).toBe(true);
+		expect(schools.length).toBe(limit);
 		expect(schools).toEqual(expectedResult);
 		done();
-  });
-  
-  it('get popular schools (ranked descending by revieweeCount)', async (done) => {
-    // NOT API ROUTE TEST, CURRENTLY USING SERVICE DIRECTLY
+	});
+
+	it('get popular schools (ranked descending by revieweeCount)', async (done) => {
+		// NOT API ROUTE TEST, CURRENTLY USING SERVICE DIRECTLY
 		await School.deleteMany({});
 		const schoolNames = [
 			randomstring.generate(),
 			randomstring.generate(),
-      randomstring.generate(),
-      randomstring.generate(),
+			randomstring.generate(),
+			randomstring.generate(),
 		];
 
 		const expectedResult = [schoolNames[1], schoolNames[2], schoolNames[0]];
@@ -104,11 +106,13 @@ describe('School endpoints', () => {
 			}
 		}
 
-    const limit = expectedResult.length;
-    const {schools} = await schoolService.getMostPopularByRevieweeCount(limit);
+		const limit = expectedResult.length;
+		const { schools } = await schoolService.getMostPopularByRevieweeCount(
+			limit
+		);
 
-    expect(Array.isArray(schools)).toBe(true);
-    expect(schools.length).toBe(limit);
+		expect(Array.isArray(schools)).toBe(true);
+		expect(schools.length).toBe(limit);
 		expect(schools).toEqual(expectedResult);
 		done();
 	});

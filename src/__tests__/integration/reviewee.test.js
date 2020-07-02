@@ -164,7 +164,7 @@ describe('Reviewee endpoints', () => {
 	});
 
 	it('new review should be added to the user outgoing review list', async (done) => {
-		const {user} = await userService.getUserById(userId);
+		const { user } = await userService.getUserById(userId);
 		const userOutgoingReviews = user.outgoingReviews;
 		const lastOutgoingReview =
 			userOutgoingReviews[userOutgoingReviews.length - 1];
@@ -455,7 +455,7 @@ describe('Reviewee endpoints', () => {
 		expect(res.body.hasReported).toBe(false);
 		expect(res.body.userVote).toBe(null);
 
-		const {user} = await userService.getUserById(userId);
+		const { user } = await userService.getUserById(userId);
 		const userOutgoingReviews = user.outgoingReviews;
 		const lastOutgoingReview =
 			userOutgoingReviews[userOutgoingReviews.length - 1];
@@ -804,11 +804,12 @@ describe('Reviewee endpoints', () => {
 
 	it('hasReported flag in review should be correct', async (done) => {
 		const randomAuthorId = mongoose.Types.ObjectId();
-		let {
-			newReviewee,
-		} = await revieweeService.createRevieweeWithReview(randomAuthorId, {
-			review: 'random review',
-		});
+		let { newReviewee } = await revieweeService.createRevieweeWithReview(
+			randomAuthorId,
+			{
+				review: 'random review',
+			}
+		);
 		const { foundRevieweeId, newReview } = await revieweeService.createReview(
 			randomAuthorId,
 			newReviewee.revieweeId,

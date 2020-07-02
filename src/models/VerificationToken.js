@@ -11,7 +11,7 @@ const verificationTokenSchema = new mongoose.Schema({
 });
 
 verificationTokenSchema.statics.findByToken = function(token) {
-	return this.findOne({token: token})
-}
+	return this.findOne({ token: token });
+};
 
 module.exports = mongoose.model('VerificationToken', verificationTokenSchema);

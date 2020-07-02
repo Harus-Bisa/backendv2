@@ -72,7 +72,9 @@ describe('Review ticket endpoints', () => {
 		const message = sgMail.send.mock.calls[mailApiCalled - 1][0].text;
 		const splitted_message = message.split('\n');
 		expect(splitted_message[1].split(': ')[1]).toBe(reviewee.revieweeId);
-		expect(splitted_message[2].split(': ')[1]).toBe(reviewee.reviews[0].reviewId);
+		expect(splitted_message[2].split(': ')[1]).toBe(
+			reviewee.reviews[0].reviewId
+		);
 		expect(splitted_message[3].split(': ')[1]).toBe(userId);
 		expect(splitted_message[4].split(': ')[1]).toBe(userEmail);
 		expect(splitted_message[5].split(': ')[1]).toBe(issueType);
@@ -87,8 +89,12 @@ describe('Review ticket endpoints', () => {
 		const userLastReportedReview =
 			userReportedReviews[userReportedReviews.length - 1];
 
-		expect(userLastReportedReview.revieweeId.toString()).toEqual(reviewee.revieweeId);
-		expect(userLastReportedReview.reviewId.toString()).toEqual(reviewee.reviews[0].reviewId);
+		expect(userLastReportedReview.revieweeId.toString()).toEqual(
+			reviewee.revieweeId
+		);
+		expect(userLastReportedReview.reviewId.toString()).toEqual(
+			reviewee.reviews[0].reviewId
+		);
 		done();
 	});
 });
