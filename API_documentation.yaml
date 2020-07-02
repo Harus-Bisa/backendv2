@@ -239,7 +239,7 @@ paths:
             type: string
             example: '5db492c349a67b33b8d0a2a2'
       responses:
-        '301':
+        '302':
           description: Redirect the user to the login page.
         '404':
           description: We were unable to find a user for this token.
@@ -375,7 +375,7 @@ paths:
       tags: 
       - General
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       requestBody:
         required: true
         content:
@@ -476,15 +476,34 @@ paths:
           schema:
             type: number
             example: 15
+        - in: query
+          name: sortBy
+          description: Category to be used for sorting reviewees result
+          schema:
+            type: string
+            enum: ['name', 'school', 'overallRating', 'totalReviews']
+            example: 'name'
+        - in: query
+          name: ascending
+          description: Sort order for the reviewees result
+          schema:
+            type: boolean
+            example: true
       responses:
         '200':
           description: Get list of reviewees matching the query is successful.
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RevieweeMatch'
+                -type: object
+                properties:
+                  totalReviewees:
+                    type: number
+                    example: 95
+                  reviewees:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RevieweeMatch'
         '500':
           description: There was an error getting the reviewees matching the query.
    
@@ -519,7 +538,7 @@ paths:
       tags: 
       - Specific Reviewee
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       parameters: 
         - in: path
           required: true
@@ -598,7 +617,7 @@ paths:
       tags: 
       - Specific Reviewee
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       parameters: 
         - in: path
           required: true
@@ -641,7 +660,7 @@ paths:
       tags: 
       - Ticket
       security:
-        - bearerAuth: []
+        - BearerAuth: []
       requestBody:
         required: true
         content:
