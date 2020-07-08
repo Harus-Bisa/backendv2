@@ -95,6 +95,7 @@ revieweeSchema.statics.getReviewees = function(
 		{ $sort: sortQuery },
 		{ $skip: skip },
 		{ $limit: limit },
+		{ $unset: ['lowerName', 'lowerSchool'] },
 	]);
 };
 
