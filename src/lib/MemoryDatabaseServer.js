@@ -4,7 +4,7 @@ class MemoryDatabaseServer {
 	constructor() {
 		this.mongod = new MongoMemoryServer({
 			binary: {
-				version: '4.0.3',
+				version: '4.2.8',
 			},
 			autoStart: false,
 		});
