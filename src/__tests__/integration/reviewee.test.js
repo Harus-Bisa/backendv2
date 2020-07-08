@@ -33,7 +33,11 @@ const fakeReviewees = [
 	{
 		name: 'alpha beta',
 		school: 'charlie delta',
-		reviews: [{ overallRating: 3.0 }, { overallRating: 4.0 }],
+		reviews: [
+			{ overallRating: 3.0 },
+			{ overallRating: 4.0 },
+			{ difficultyRating: 1.0 },
+		],
 	},
 	{
 		name: 'epsilon fourrier',
@@ -191,26 +195,40 @@ describe('Reviewee endpoints', () => {
 
 		const reviewees = res.body.reviewees;
 
-		expect(reviewees[0].name).toBe(revieweeOne.name);
-		expect(reviewees[0].school).toBe(revieweeOne.school);
-		expect(reviewees[0].numberOfReviews).toBe(revieweeOne.reviews.length);
-		const revieweeOneOverallRatingAvg =
-			revieweeOne.reviews.reduce(
-				(total, review) => total + review.overallRating,
-				0
-			) / revieweeOne.reviews.length;
-		expect(reviewees[0].overallRating).toBe(revieweeOneOverallRatingAvg);
-		expect(reviewees[0].reviews).not.toBeDefined();
+		expect(reviewees[1].name).toBe(revieweeOne.name);
+		expect(reviewees[1].school).toBe(revieweeOne.school);
+		expect(reviewees[1].numberOfReviews).toBe(revieweeOne.reviews.length);
 
-		expect(reviewees[1].name).toBe(revieweeTwo.name);
-		expect(reviewees[1].school).toBe(revieweeTwo.school);
-		expect(reviewees[1].numberOfReviews).toBe(0);
-		expect(reviewees[1].overallRating).toBe(0);
+		const revieweeOneOverallRatingTotal = revieweeOne.reviews.reduce(
+			(total, review) => {
+				return review.overallRating !== undefined
+					? total + review.overallRating
+					: total;
+			},
+			0
+		);
 
-		expect(reviewees[2].name).toBe(revieweeThree.name);
-		expect(reviewees[2].school).toBe(revieweeThree.school);
+		const revieweeOneCountedOverallRating = revieweeOne.reviews.reduce(
+			(counted, review) => {
+				return review.overallRating !== undefined ? counted + 1 : counted;
+			},
+			0
+		);
+
+		expect(reviewees[1].overallRating).toBe(
+			revieweeOneOverallRatingTotal / revieweeOneCountedOverallRating
+		);
+		expect(reviewees[1].reviews).not.toBeDefined();
+
+		expect(reviewees[2].name).toBe(revieweeTwo.name);
+		expect(reviewees[2].school).toBe(revieweeTwo.school);
 		expect(reviewees[2].numberOfReviews).toBe(0);
 		expect(reviewees[2].overallRating).toBe(0);
+
+		expect(reviewees[0].name).toBe(revieweeThree.name);
+		expect(reviewees[0].school).toBe(revieweeThree.school);
+		expect(reviewees[0].numberOfReviews).toBe(0);
+		expect(reviewees[0].overallRating).toBe(0);
 
 		done();
 	});
@@ -238,8 +256,8 @@ describe('Reviewee endpoints', () => {
 
 		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(2);
-		expect(reviewees[0].name).toBe(fakeReviewees[0].name);
-		expect(reviewees[1].name).toBe(fakeReviewees[2].name);
+		expect(reviewees[0].name).toBe(fakeReviewees[2].name);
+		expect(reviewees[1].name).toBe(fakeReviewees[0].name);
 
 		done();
 	});
@@ -285,7 +303,7 @@ describe('Reviewee endpoints', () => {
 
 		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(1);
-		expect(reviewees[0].name).toBe(fakeReviewees[0].name);
+		expect(reviewees[0].name).toBe(fakeReviewees[2].name);
 
 		done();
 	});
@@ -300,7 +318,7 @@ describe('Reviewee endpoints', () => {
 
 		const reviewees = res.body.reviewees;
 		expect(reviewees.length).toBe(1);
-		expect(reviewees[0].name).toBe(fakeReviewees[2].name);
+		expect(reviewees[0].name).toBe(fakeReviewees[0].name);
 
 		done();
 	});
@@ -720,8 +738,21 @@ describe('Reviewee endpoints', () => {
 		);
 		const authorId = mongoose.Types.ObjectId();
 		const totalReviews = 5;
+		const reviews = [
+			{
+				overallRating: 3.0,
+			},
+			{ difficultyRating: 2.0 },
+			{ recommendationRating: 4.0, overallRating: 5.0 },
+			{},
+			{},
+		];
 		for (i = 0; i < totalReviews; i++) {
-			await revieweeService.createReview(authorId, newReviewee.revieweeId, {});
+			await revieweeService.createReview(
+				authorId,
+				newReviewee.revieweeId,
+				reviews[i]
+			);
 		}
 
 		const res = await request(app)
@@ -732,6 +763,9 @@ describe('Reviewee endpoints', () => {
 		expect(res.body.revieweeId).toBe(newReviewee.revieweeId.toString());
 		expect(res.body.reviews.length).toBe(totalReviews);
 		expect(res.body.numberOfReviews).toBe(totalReviews);
+		expect(res.body.overallRating).toBe(4.0);
+		expect(res.body.recommendationRating).toBe(4.0);
+		expect(res.body.difficultyRating).toBe(2.0);
 		done();
 	});
 

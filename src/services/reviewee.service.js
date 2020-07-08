@@ -63,81 +63,37 @@ class RevieweeService {
 		school,
 		index = 0,
 		limit = 10,
-		sortBy = undefined,
+		sortBy = 'name',
 		ascending = true
 	) {
-		let reviewees = await Reviewee.getReviewees(name, school, sortBy);
 		index = parseInt(index);
 		limit = parseInt(limit);
 
 		if (index < 0) {
-			reviewees = [];
+			let reviewees = [];
 			return { reviewees };
 		}
 
-		reviewees = reviewees.map((reviewee) => {
-			let sumOverallRating = 0;
-			const numberOfReviews = reviewee.reviews.length;
-			let countedOverallRating = 0;
+		let [reviewees, totalReviewees] = await Promise.all([
+			Reviewee.getReviewees(name, school, sortBy, ascending, index, limit),
+			Reviewee.estimatedDocumentCount(),
+		]);
 
-			for (let i = 0; i < numberOfReviews; i++) {
-				sumOverallRating += reviewee.reviews[i].overallRating;
-				countedOverallRating += 1;
+		reviewees = reviewees.map((reviewee) => {
+			if (reviewee.overallRating === null) {
+				reviewee.overallRating = 0;
 			}
 
-			return {
-				revieweeId: reviewee._id.toString(),
-				name: reviewee.name,
-				school: reviewee.school,
-				numberOfReviews: numberOfReviews,
-				overallRating:
-					countedOverallRating > 0
-						? sumOverallRating / countedOverallRating
-						: 0,
-			};
+			if (reviewee.difficultyRating === null) {
+				reviewee.difficultyRating = 0;
+			}
+
+			if (reviewee.recommendationRating === null) {
+				reviewee.recommendationRating = 0;
+			}
+
+			return reviewee;
 		});
-
-		switch (sortBy) {
-			case 'name':
-				reviewees.sort((a, b) =>
-					a.name.toLowerCase() > b.name.toLowerCase() ? 1 : -1
-				);
-				break;
-			case 'school':
-				reviewees.sort((a, b) =>
-					a.school.toLowerCase() > b.school.toLowerCase() ? 1 : -1
-				);
-				break;
-			case 'totalReviews':
-				reviewees.sort((a, b) =>
-					a.numberOfReviews > b.numberOfReviews
-						? 1
-						: a.numberOfReviews === b.numberOfReviews
-						? a.name.toLowerCase() > b.name.toLowerCase()
-							? 1
-							: -1
-						: -1
-				);
-				break;
-			case 'overallRating':
-				reviewees.sort((a, b) =>
-					a.overallRating > b.overallRating
-						? 1
-						: a.overallRating === b.overallRating
-						? a.name.toLowerCase() > b.name.toLowerCase()
-							? 1
-							: -1
-						: -1
-				);
-				break;
-		}
-
-		if (ascending === false) {
-			reviewees.reverse();
-		}
-
-		const totalReviewees = reviewees.length;
-		reviewees = reviewees.slice(index, index + limit);
 
 		return { reviewees, totalReviewees };
 	}
@@ -299,7 +255,7 @@ class RevieweeService {
 				countedDifficultyRating += 1;
 			}
 
-			if (formattedReviewee.reviews[i].recommendationRating) {
+			if (formattedReviewee.reviews[i].recommendationRating !== undefined) {
 				sumRecommendationRating +=
 					formattedReviewee.reviews[i].recommendationRating;
 				countedRecommendationRating += 1;
