@@ -1,13 +1,12 @@
 const request = require('supertest');
 const app = require('../../app');
 const sgMail = require('@sendgrid/mail');
-const mongoose = require('mongoose');
+const randomstring = require('randomstring');
 
-// jest.mock('../../db');
 jest.mock('@sendgrid/mail');
 
-const userEmail = mongoose.Types.ObjectId() + '@gmail.com';
-const userPassword = mongoose.Types.ObjectId();
+const userEmail = randomstring.generate();
+const userPassword = randomstring.generate();
 var userVerificationToken;
 
 const userInfo = {
@@ -85,7 +84,7 @@ describe('Auth endpoints', () => {
 	});
 
 	it('verify non-existent user should fail', async (done) => {
-		const randomVerificationToken = mongoose.Types.ObjectId();
+		const randomVerificationToken = randomstring.generate();
 		const res = await request(app).get(
 			'/verification/' + randomVerificationToken
 		);
@@ -115,10 +114,10 @@ describe('Auth endpoints', () => {
 	});
 
 	it('resend verification token for non-existent user should fail', async (done) => {
-		const randomEmail = 'random@bar.com';
+		const email = 'random@bar.com';
 		const res = await request(app)
 			.post('/resend')
-			.send(randomEmail);
+			.send({email});
 		expect(res.statusCode).toEqual(404);
 		done();
 	});

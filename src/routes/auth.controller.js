@@ -10,6 +10,12 @@ router.post('/signup', async (req, res) => {
 	try {
 		const userEmail = req.body.email;
 		const userPassword = req.body.password;
+
+		if (userEmail === undefined || userPassword === undefined) {
+			res.statusMessage = 'Please provivde email and password.';
+			return res.status(400).end();
+		}
+
 		const { userAlreadyExist, newUser } = await authService.signup(
 			userEmail,
 			userPassword
@@ -32,6 +38,11 @@ router.post('/login', async (req, res) => {
 	try {
 		const userEmail = req.body.email;
 		const userPassword = req.body.password;
+
+		if (userEmail === undefined || userPassword === undefined) {
+			res.statusMessage = 'Please provivde email and password.';
+			return res.status(400).end();
+		}
 
 		const { authorized, credential, verified } = await authService.login(
 			userEmail,
@@ -73,6 +84,12 @@ router.get('/verification/:token', async (req, res) => {
 
 router.post('/resend', async (req, res) => {
 	const userEmail = req.body.email;
+
+	if (userEmail === undefined) {
+		res.statusMessage = 'Please provivde email.';
+		return res.status(400).end();
+	}
+
 	const { user } = await authService.sendVerificationEmail(userEmail);
 
 	if (!user) {
