@@ -21,7 +21,10 @@ router.get('/', async (req, res) => {
 
 router.get('/popular', async (req, res) => {
 	try {
-		const limit = req.query.limit;
+		let limit = parseInt(req.query.limit);
+		if (isNaN(limit)) {
+			limit = undefined;
+		}
 		const { schools } = await schoolService.getMostPopularByVisited(limit);
 		res.statusMessage = 'Get most popular schools is successful.';
 		return res.status(200).send(schools);

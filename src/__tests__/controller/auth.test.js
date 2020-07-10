@@ -4,11 +4,7 @@ const app = require('../../app');
 
 const AuthService = require('../../services/auth.service');
 jest.mock('../../services/auth.service.js');
-
-// beforeEach(() => {
-// 	// Clear all instances and calls to constructor and all methods:
-// 	AuthService.mockClear();
-// });
+const authServiceInstance = 0;
 
 describe('Auth endpoints', () => {
 	it('signup without username should fail', async (done) => {
@@ -21,7 +17,7 @@ describe('Auth endpoints', () => {
 			.send(userInfo);
 
 		expect(res.statusCode).toEqual(400);
-		expect(AuthService.mock.instances[0].signup).not.toHaveBeenCalled();
+		expect(AuthService.mock.instances[authServiceInstance].signup).not.toHaveBeenCalled();
 		done();
 	});
 
@@ -35,7 +31,7 @@ describe('Auth endpoints', () => {
 			.send(userInfo);
 
 		expect(res.statusCode).toEqual(400);
-		expect(AuthService.mock.instances[0].signup).not.toHaveBeenCalled();
+		expect(AuthService.mock.instances[authServiceInstance].signup).not.toHaveBeenCalled();
 		done();
 	});
 
@@ -55,7 +51,7 @@ describe('Auth endpoints', () => {
 			.send(userInfo);
 
 		expect(res.statusCode).toEqual(201);
-		expect(AuthService.mock.instances[0].signup).toHaveBeenCalledWith(
+		expect(AuthService.mock.instances[authServiceInstance].signup).toHaveBeenLastCalledWith(
 			userInfo.email,
 			userInfo.password
 		);
@@ -72,7 +68,7 @@ describe('Auth endpoints', () => {
 			.send(userInfo);
 
 		expect(res.statusCode).toEqual(400);
-		expect(AuthService.mock.instances[0].login).not.toHaveBeenCalled();
+		expect(AuthService.mock.instances[authServiceInstance].login).not.toHaveBeenCalled();
 		done();
 	});
 
@@ -86,7 +82,7 @@ describe('Auth endpoints', () => {
 			.send(userInfo);
 
 		expect(res.statusCode).toEqual(400);
-		expect(AuthService.mock.instances[0].login).not.toHaveBeenCalled();
+		expect(AuthService.mock.instances[authServiceInstance].login).not.toHaveBeenCalled();
 		done();
 	});
 
@@ -107,7 +103,7 @@ describe('Auth endpoints', () => {
 			.send(userInfo);
 
 		expect(res.statusCode).toEqual(200);
-		expect(AuthService.mock.instances[0].login).toHaveBeenCalledWith(
+		expect(AuthService.mock.instances[authServiceInstance].login).toHaveBeenLastCalledWith(
 			userInfo.email,
 			userInfo.password
 		);
@@ -123,7 +119,7 @@ describe('Auth endpoints', () => {
 
 		expect(res.statusCode).toEqual(400);
 		expect(
-			AuthService.mock.instances[0].sendVerificationEmail
+			AuthService.mock.instances[authServiceInstance].sendVerificationEmail
 		).not.toHaveBeenCalled();
 		done();
 	});
@@ -142,8 +138,8 @@ describe('Auth endpoints', () => {
 
 		expect(res.statusCode).toEqual(200);
 		expect(
-			AuthService.mock.instances[0].sendVerificationEmail
-		).toHaveBeenCalledWith(email);
+			AuthService.mock.instances[authServiceInstance].sendVerificationEmail
+		).toHaveBeenLastCalledWith(email);
 
 		done();
 	});
