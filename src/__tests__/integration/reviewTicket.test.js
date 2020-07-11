@@ -4,6 +4,8 @@ const User = require('../../models/User');
 const createUserHelper = require('../helper/createUser');
 const createRevieweeWithReviews = require('../helper/createRevieweeWithReviews');
 
+const randomstring= require('randomstring')
+
 const sgMail = require('@sendgrid/mail');
 jest.mock('@sendgrid/mail');
 

@@ -18,6 +18,18 @@ router.post('/reviews/', authentication, async (req, res) => {
 		const reviewId = req.body.reviewId;
 		const issueType = req.body.issueType;
 		const additionalMessage = req.body.additionalMessage;
+
+		if (
+			authorId === undefined ||
+			revieweeId === undefined ||
+			reviewId === undefined ||
+			issueType === undefined
+		) {
+			res.statusMessage =
+				'Please provide authorId, revieweeId, reviewId, and issueType.';
+			return res.status(400).end();
+		}
+
 		// TODO security issue using provided userId instead of token
 		const { newTicket } = await reviewTicketService.createTicket(
 			authorId,
