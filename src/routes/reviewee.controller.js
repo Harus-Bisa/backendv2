@@ -9,25 +9,67 @@ const revieweeService = new RevieweeService();
 const userService = new UserService();
 
 router.post('/', authentication, async (req, res) => {
-	if (!req.authenticated) {
-		res.statusMessage = 'Authentication is required to create new review.';
-		return res.status(401).end();
-	}
-
 	try {
+		if (!req.authenticated) {
+			res.statusMessage = 'Authentication is required to create new review.';
+			return res.status(401).end();
+		}
+
+		const name = req.body.name;
+		const school = req.body.school;
+		const review = req.body.review;
+		const courseName = req.body.courseName;
+		const overallRating =
+			req.body.overallRating !== undefined
+				? parseFloat(req.body.overallRating)
+				: undefined;
+		const recommendationRating =
+			req.body.recommendationRating !== undefined
+				? parseFloat(req.body.recommendationRating)
+				: undefined;
+
+		const difficultyRating =
+			req.body.difficultyRating !== undefined
+				? parseFloat(req.body.difficultyRating)
+				: undefined;
+		let yearTaken = req.body.yearTaken
+			? parseInt(req.body.yearTaken)
+			: undefined;
+
+		const grade = req.body.grade;
+		const tags = req.body.tags;
+		const textbookRequired = req.body.textbookRequired;
+		const teachingStyles = req.body.teachingStyles;
+
+		if (name === undefined || school === undefined) {
+			res.statusMessage = 'Please provide name and school.';
+			return res.status(400).end();
+		}
+
+		if (
+			(overallRating !== undefined && isNaN(overallRating)) ||
+			(recommendationRating !== undefined && isNaN(recommendationRating)) ||
+			(difficultyRating !== undefined && isNaN(difficultyRating)) ||
+			(yearTaken !== undefined && isNaN(yearTaken))
+		) {
+			res.statusMessage =
+				'Overall rating, recommendation rating, difficulty rating, and year taken must be number type.';
+			return res.status(400).end();
+		}
+
 		const revieweeData = {
-			name: req.body.name,
-			school: req.body.school,
-			review: req.body.review,
-			courseName: req.body.courseName,
-			overallRating: req.body.overallRating,
-			recommendationRating: req.body.recommendationRating,
-			difficultyRating: req.body.difficultyRating,
-			yearTaken: req.body.yearTaken,
-			grade: req.body.grade,
-			tags: req.body.tags,
-			textbookRequired: req.body.textbookRequired,
-			teachingStyles: req.body.teachingStyles,
+			name,
+			school,
+			review,
+			courseName,
+			overallRating,
+			recommendationRating,
+			difficultyRating,
+			yearTaken,
+			grade,
+			tags,
+			textbookRequired,
+			teachingStyles,
 		};
 
 		const authorId = req.userId;
