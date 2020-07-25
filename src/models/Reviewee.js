@@ -69,7 +69,6 @@ revieweeSchema.statics.getReviewees = function(
 			sortQuery = { overallRating: ascending, name: 1 };
 			break;
 	}
-
 	return this.aggregate([
 		{
 			$project: {
@@ -93,9 +92,16 @@ revieweeSchema.statics.getReviewees = function(
 			$match: { name: { $regex: nameQuery }, school: { $regex: schoolQuery } },
 		},
 		{ $sort: sortQuery },
-		{ $skip: skip },
-		{ $limit: limit },
-		{ $unset: ['lowerName', 'lowerSchool'] },
+		{
+			$facet: {
+				reviewees: [
+					{ $skip: skip },
+					{ $limit: limit },
+					{ $unset: ['lowerName', 'lowerSchool'] },
+				],
+				totalReviewees: [{ $count: 'count' }],
+			},
+		},
 	]);
 };
 

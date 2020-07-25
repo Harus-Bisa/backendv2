@@ -74,10 +74,20 @@ class RevieweeService {
 			return { reviewees };
 		}
 
-		let [reviewees, totalReviewees] = await Promise.all([
-			Reviewee.getReviewees(name, school, sortBy, ascending, index, limit),
-			Reviewee.estimatedDocumentCount(),
-		]);
+		const result = await Reviewee.getReviewees(
+			name,
+			school,
+			sortBy,
+			ascending,
+			index,
+			limit
+		);
+
+		let reviewees = result[0].reviewees;
+		const totalReviewees =
+			result[0].totalReviewees.length > 0
+				? result[0].totalReviewees[0].count
+				: 0;
 
 		reviewees = reviewees.map((reviewee) => {
 			if (reviewee.overallRating === null) {

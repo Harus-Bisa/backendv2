@@ -299,6 +299,8 @@ describe('Reviewee endpoints', () => {
 			.query({ name: 'alp', limit: 1 });
 
 		expect(res.statusCode).toBe(200);
+		const totalReviewees = res.body.totalReviewees;
+		expect(totalReviewees).toBe(2);
 		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
 		const reviewees = res.body.reviewees;
@@ -314,6 +316,9 @@ describe('Reviewee endpoints', () => {
 			.query({ name: 'alp', limit: 1, index: 1 });
 
 		expect(res.statusCode).toBe(200);
+
+		const totalReviewees = res.body.totalReviewees;
+		expect(totalReviewees).toBe(2);
 		expect(Array.isArray(res.body.reviewees)).toBe(true);
 
 		const reviewees = res.body.reviewees;
